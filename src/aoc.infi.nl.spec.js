@@ -43,7 +43,51 @@ function part1(data) {
 }
 
 function part2(data) {
-  return 0;
+  const cubes = [];
+
+  for (let x = 0; x < 30; x++) {
+    for (let y = 0; y < 30; y++) {
+      for (let z = 0; z < 30; z++) {
+        cubes.push({
+          x,
+          y,
+          z,
+          value: valueFor(data, { x, y, z }),
+        });
+      }
+    }
+  }
+
+  let clouds = cubes.filter((c) => c.value > 0).map((cube) => [cube]);
+
+  function isAdjacent(one, two) {
+    const distance =
+      Math.abs(one.x - two.x) +
+      Math.abs(one.y - two.y) +
+      Math.abs(one.z - two.z);
+    return distance === 1;
+  }
+
+  while (true) {
+    let foldedClouds = [];
+    clouds.forEach((cloud) => {
+      const matchingCloud = foldedClouds
+        .filter((otherCloud) => otherCloud !== cloud)
+        .find((otherCloud) =>
+          otherCloud.some((cube1) =>
+            cloud.some((cube2) => isAdjacent(cube1, cube2))
+          )
+        );
+
+      if (matchingCloud) {
+        matchingCloud.push(...cloud);
+      } else {
+        foldedClouds.push(cloud);
+      }
+    });
+    if (clouds.length === foldedClouds.length) return clouds.length;
+    clouds = foldedClouds;
+  }
 }
 
 async function getDataFrom(file) {
@@ -73,6 +117,6 @@ describe("aoc.infi.nl", async () => {
     const data = await getDataFrom("src/aoc.infi.nl.txt");
     const result = part2(data);
     console.log("Infi AoC Sponsor Puzzle, part 2:", result);
-    expect(result).toBe(0);
+    expect(result).toBe(13);
   });
 });
