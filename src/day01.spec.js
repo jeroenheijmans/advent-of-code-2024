@@ -9,7 +9,11 @@ function part1(data) {
 }
 
 function part2(data) {
-  return 0;
+  const bs = data.map(x => x.second)
+  return data
+    .map(x => x.first)
+    .map(a => a * bs.filter(b => b === a).length)
+    .reduce((a,b) => a + b, 0)
 } 
 
 describe("day01", async () => {
@@ -32,6 +36,6 @@ describe("day01", async () => {
   it("should solve part 2", () => {
     const result = part2(data);
     console.log("Day 01, part 2:", result)
-    expect(result).toBe(0);
+    expect(result).toBe(21024792);
   });
 });
