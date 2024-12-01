@@ -1,0 +1,72 @@
+<!-- Copy-pasteable to e.g. https://codepen.io/ -->
+
+<div
+  style="
+    padding: 10px;
+    border: 1px solid maroon;
+    background: crimson;
+    font-weight: bold;
+    font-family: sans-serif;
+    margin: 5px;
+    opacity: 0.7;
+    font-size: 3em;
+    text-align: center;
+  "
+>
+  Use WASD and Mouse to look around!
+</div>
+<script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+<a-scene>
+  <a-camera
+    position="15 20 50"
+    fov="80"
+    wasd-controls="acceleration: 200"
+    orbit-controls="enableDamping: true; dampingFactor: 0.25; rotateSpeed: 0.2;"
+  ></a-camera>
+  <a-light type="ambient" color="#fff" intensity="0.5"></a-light>
+  <a-light
+    type="directional"
+    color="#fc9"
+    intensity="1"
+    position="2 4 -3"
+  ></a-light>
+
+  <script>
+    const points = []; // Insert "aoc.infi.nl.output.txt" contents here!
+
+    points.forEach((point) => {
+      const cube = document.createElement("a-box");
+      const dx = (Math.random() - 0.5) / 3;
+      const dy = (Math.random() - 0.5) / 3;
+      const dz = (Math.random() - 0.5) / 3;
+      const dur = Math.floor(Math.random() * 1000) + 1500;
+      cube.setAttribute(
+        "position",
+        `${point.x + dx / 2} ${point.y + dy / 2} ${point.z + dz / 2}`
+      );
+      cube.setAttribute("width", "1");
+      cube.setAttribute("height", "1");
+      cube.setAttribute("depth", "1");
+      cube.setAttribute(
+        "color",
+        `rgb(${Math.floor(Math.random() * 20) + 150}, ${
+          Math.floor(Math.random() * 20) + 140
+        }, ${Math.floor(Math.random() * 20) + 230})`
+      );
+      cube.setAttribute("opacity", "0.8");
+      cube.setAttribute(
+        "animation",
+        "property: position; to: " +
+          (point.x + dx) +
+          " " +
+          (point.y + dy) +
+          " " +
+          (point.z + dz) +
+          "; dir: alternate; dur: " +
+          dur +
+          "; loop: true;"
+      );
+      document.querySelector("a-scene").appendChild(cube);
+    });
+  </script>
+</a-scene>

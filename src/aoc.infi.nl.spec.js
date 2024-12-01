@@ -1,7 +1,5 @@
 import { describe, it, expect } from "bun:test";
 
-const add = (a, b) => a + b;
-
 function valueFor(data, coords) {
   let pointer = 0;
   let stack = [];
@@ -59,6 +57,8 @@ function part2(data) {
   }
 
   let clouds = cubes.filter((c) => c.value > 0).map((cube) => [cube]);
+
+  Bun.write("src/aoc.infi.nl.output.txt", JSON.stringify(cubes.filter((c) => c.value > 0)));
 
   function isAdjacent(one, two) {
     const distance =
