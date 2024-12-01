@@ -14,7 +14,7 @@ bun test --watch
 
 Here's what I learned (or noticed) each day.
 
-1. TODO
+1. Intellisense is more important than I thought
 2. TODO
 3. TODO
 4. TODO
@@ -39,6 +39,10 @@ Here's what I learned (or noticed) each day.
 23. TODO
 24. TODO
 25. TODO
+
+Bonus:
+
+- aoc.infi.nl taught me that A-Frame trumps straight up ThreeJS for small experiments!
 
 ## Compendium Repositories
 
