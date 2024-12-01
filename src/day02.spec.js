@@ -16,13 +16,13 @@ describe("day02", async () => {
 
   it("should solve part 1", () => {
     const result = part1(data);
-    console.log("Day 01, part 1:", result);
+    console.log("Day 02, part 1:", result);
     expect(result).toBe(0);
   });
 
   it("should solve part 2", () => {
     const result = part2(data);
-    console.log("Day 01, part 2:", result);
+    console.log("Day 02, part 2:", result);
     expect(result).toBe(0);
   });
 });
