@@ -19,7 +19,23 @@ function part1(data) {
 }
 
 function part2(data) {
-  return 0;
+  function isSafe(report) {
+    let errors = 0;
+    // console.log(report);
+    const isIncreasing = report[1] > report[0];
+    for (let i = 0; i < report.length - 1; i++) {
+      const diff = report[i + 1] - report[errors > 0 ? i -1 : i];
+      const isMovingCorrectly = isIncreasing ? diff > 0 : diff < 0;
+      const absDiff = Math.abs(diff);
+      if (isMovingCorrectly && absDiff <= 3) continue;
+      errors++;
+      if (errors > 1) return false;
+    }
+    return true;
+  }
+  const safeReports = data.filter(r => isSafe(r));
+  // console.log(safeReports);
+  return safeReports.length;
 }
 
 function parseInput(input) {
