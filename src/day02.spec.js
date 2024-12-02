@@ -37,8 +37,8 @@ function part2(data) {
     }
     return true;
   }
-  const safeReports = data.filter(r => !isSafe(r));
-  safeReports.forEach(x => console.log(x));
+  const safeReports = data.filter(r => isSafe(r));
+  // safeReports.forEach(x => console.log(x));
   return safeReports.length;
 }
 
