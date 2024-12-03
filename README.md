@@ -14,9 +14,9 @@ bun test --watch
 
 Here's what I learned (or noticed) each day.
 
-1. Intellisense is more important than I thought
+1. Intellisense is more important than I thought.
 2. Gotta take your time!
-3. TODO
+3. Copilot for AoC can be no fun.
 4. TODO
 5. TODO
 6. TODO
