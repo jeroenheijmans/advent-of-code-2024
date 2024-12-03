@@ -1,7 +1,15 @@
 import { describe, it, expect } from "bun:test";
 
+const add = (a, b) => a + b;
+
 function part1(data) {
-  return data.length;
+  return data.map(line => {
+    const matches = line.match(/mul\(\d+,\d+\)/g);
+    return matches ? matches.map(match => {
+      const [a, b] = match.match(/\d+/g).map(Number);
+      return a * b;
+    }).reduce(add, 0) : 0;
+  }).reduce(add, 0);
 }
 
 function part2(data) {
@@ -17,6 +25,7 @@ function parseInput(input) {
 
 describe("day03", async () => {
   const example = `
+xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
   `;
 
   const input = await Bun.file("src/day03.txt").text();
@@ -24,13 +33,13 @@ describe("day03", async () => {
   it("should solve part 1 (example)", () => {
     const result = part1(parseInput(example));
     console.log("Day 03, part 1 (example):", result);
-    expect(result).toBe(0);
+    expect(result).toBe(161);
   });
 
   it("should solve part 1", () => {
     const result = part1(parseInput(input));
     console.log("Day 03, part 1:", result);
-    expect(result).toBe(0);
+    expect(result).toBe(183669043);
   });
 
   // it("should solve part 2 (example)", () => {
