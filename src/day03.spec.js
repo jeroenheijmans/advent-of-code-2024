@@ -11,7 +11,20 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const matches = data.match(/(mul\(\d+,\d+\))|(do\(\))|(don't\(\))/g);
+  let isEnabled = true;
+  let result = 0;
+  matches.forEach(match => {
+    if (match === "do()") {
+      isEnabled = true;
+    } else if (match === "don't()") {
+      isEnabled = false;
+    } else if (isEnabled) {
+      const [a, b] = match.match(/\d+/g).map(Number);
+      result += a * b;
+    }
+  });
+  return result;
 }
 
 function parseInput(input) {
@@ -19,12 +32,8 @@ function parseInput(input) {
 }
 
 describe("day03", async () => {
-  const example1 = `
-xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
-  `;
-  const example2 = `
-xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
-  `;
+  const example1 = `xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`;
+  const example2 = `xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`;
 
   const input = await Bun.file("src/day03.txt").text();
 
@@ -46,9 +55,9 @@ xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
     expect(result).toBe(48);
   });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log("Day 03, part 2:", result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log("Day 03, part 2:", result);
+    expect(result).toBe(59097164);
+  });
 });
