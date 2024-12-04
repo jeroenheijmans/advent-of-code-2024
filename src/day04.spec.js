@@ -43,7 +43,22 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  let result = 0;
+  for (let y = 1; y < data.length - 1; y++) {
+    for (let x = 1; x < data[0].length - 1; x++) {
+      if (data[y][x] !== "A") continue;
+
+      let count = 0;
+
+      if (data[y - 1][x - 1] === "M" && data[y + 1][x + 1] === "S") count++;
+      if (data[y + 1][x - 1] === "M" && data[y - 1][x + 1] === "S") count++;
+      if (data[y + 1][x + 1] === "M" && data[y - 1][x - 1] === "S") count++;
+      if (data[y - 1][x + 1] === "M" && data[y + 1][x - 1] === "S") count++;
+      
+      if (count === 2) result++;
+    }
+  }
+  return result;
 }
 
 function parseInput(input) {
@@ -83,15 +98,15 @@ MXMXAXMASX
     expect(result).toBe(2571);
   });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log("Day 04, part 2 (example):", result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log("Day 04, part 2 (example):", result);
+    expect(result).toBe(9);
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log("Day 04, part 2:", result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log("Day 04, part 2:", result);
+    expect(result).toBe(1992);
+  });
 });
