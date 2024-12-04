@@ -11,31 +11,30 @@ const directions = [
   { dx: +1, dy: 0 }, // E
   { dx: +1, dy: -1 }, // NE
   { dx: 0, dy: -1 }, // N
-]
+];
 
 function part1(data) {
-  function countInstances({x, y}, dir, word) {
+  const maxy = data.length;
+  const maxx = data[0].length;
+
+  function countInstances({ x, y }, dir, word) {
     if (word.length === 0) return 1;
 
-    if (x < 0 || x >= data[0].length) return 0;
-    if (y < 0 || y >= data.length) return 0;
-
-    // console.log(x, y, dir.dx, dir.dy, word);
+    if (x < 0 || x >= maxx) return 0;
+    if (y < 0 || y >= maxy) return 0;
 
     const [head, ...tail] = word;
+
     if (data[y][x] !== head) return 0;
 
-    const newY = y + dir.dy;
-    const newX = x + dir.dx;
-    
-    return countInstances({x: newX, y: newY}, dir, tail);
+    return countInstances({ x: x + dir.dx, y: y + dir.dy }, dir, tail);
   }
-  
+
   let result = 0;
-  for (let y = 0; y < data.length; y++) {
-    for (let x = 0; x < data[0].length; x++) {
+  for (let y = 0; y < maxy; y++) {
+    for (let x = 0; x < maxx; x++) {
       result += directions
-        .map(dir => countInstances({x, y}, dir, "XMAS"))
+        .map((dir) => countInstances({ x, y }, dir, "XMAS"))
         .reduce(add, 0);
     }
   }
@@ -43,9 +42,12 @@ function part1(data) {
 }
 
 function part2(data) {
+  const maxy = data.length;
+  const maxx = data[0].length;
+
   let result = 0;
-  for (let y = 1; y < data.length - 1; y++) {
-    for (let x = 1; x < data[0].length - 1; x++) {
+  for (let y = 1; y < maxy - 1; y++) {
+    for (let x = 1; x < maxx - 1; x++) {
       if (data[y][x] !== "A") continue;
 
       let count = 0;
@@ -54,7 +56,7 @@ function part2(data) {
       if (data[y + 1][x - 1] === "M" && data[y - 1][x + 1] === "S") count++;
       if (data[y + 1][x + 1] === "M" && data[y - 1][x - 1] === "S") count++;
       if (data[y - 1][x + 1] === "M" && data[y + 1][x - 1] === "S") count++;
-      
+
       if (count === 2) result++;
     }
   }
@@ -66,8 +68,7 @@ function parseInput(input) {
     .trim()
     .split(/\r?\n/g)
     .filter((x) => !!x)
-    .map(x => x.split(""))
-    ;
+    .map((x) => x.split(""));
 }
 
 describe("day04", async () => {
