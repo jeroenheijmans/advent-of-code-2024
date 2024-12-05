@@ -18,7 +18,7 @@ Here's what I learned (or noticed) each day.
 2. Gotta take your time!
 3. Copilot for AoC can be no fun.
 4. There shall be **no** premature optimization!
-5. TODO
+5. Saving intermediate but wrong steps helps!
 6. TODO
 7. TODO
 8. TODO
