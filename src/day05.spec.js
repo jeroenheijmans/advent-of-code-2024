@@ -15,18 +15,29 @@ function areEqualArrays(a, b) {
 }
 
 function part1(data) {
-  function sorter(a, b) {
-    if (data.rules.includes((r) => r[0] === a && r[1] === b)) return 1;
-    if (data.rules.includes((r) => r[0] === b && r[1] === a)) return -1;
-    return 0;
-  }
-  const sorted = data.orders.map((o) => o.toSorted());
-  const correct = sorted.filter((o, index) =>
-    areEqualArrays(o, data.orders[index])
-  );
-  console.log(sorted);
-  return correct
-    .map((o) => o[Math.ceil(o.length / 2)])
+  let result = 0;
+
+  const filtered = data.orders.filter((order) => {
+    return order.every((n, index) => {
+      for (let i = 0; i < order.length; i++) {
+        if (i === index) continue;
+        if (
+          i < index &&
+          data.rules.some((r) => r[0] === n && r[1] === order[i])
+        )
+          return false;
+        if (
+          i > index &&
+          data.rules.some((r) => r[1] === n && r[0] === order[i])
+        )
+          return false;
+      }
+      return true;
+    });
+  });
+  
+  return filtered
+    .map((order) => order[Math.floor(order.length / 2)])
     .map((n) => parseInt(n))
     .reduce(add, 0);
 }
@@ -80,14 +91,14 @@ describe(`day${day}`, async () => {
   it("should solve part 1 (example)", () => {
     const result = part1(parseInput(example));
     console.log(`Day ${day}, part 1 (example):`, result);
-    expect(result).toBe(0);
+    expect(result).toBe(143);
   });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(3608);
+  });
 
   // it("should solve part 2 (example)", () => {
   //   const result = part2(parseInput(example));
