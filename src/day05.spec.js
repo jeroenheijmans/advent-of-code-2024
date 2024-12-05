@@ -43,7 +43,38 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const filtered = data.orders.filter((order) => {
+    return !order.every((n, index) => {
+      for (let i = 0; i < order.length; i++) {
+        if (i === index) continue;
+        if (
+          i < index &&
+          data.rules.some((r) => r[0] === n && r[1] === order[i])
+        )
+          return false;
+        if (
+          i > index &&
+          data.rules.some((r) => r[1] === n && r[0] === order[i])
+        )
+          return false;
+      }
+      return true;
+    });
+  });
+
+  const sort = (a, b) => {
+    if (a === b) return 0;
+    if (data.rules.some((r) => r[0] === a && r[1] === b)) return 1;
+    if (data.rules.some((r) => r[0] === b && r[1] === a)) return -1;
+    return 0;
+  };
+
+  const sorted = filtered.map(order => order.toSorted(sort));
+  
+  return sorted
+    .map((order) => order[Math.floor(order.length / 2)])
+    .map((n) => parseInt(n))
+    .reduce(add, 0);
 }
 
 function parseInput(input) {
@@ -100,15 +131,15 @@ describe(`day${day}`, async () => {
     expect(result).toBe(3608);
   });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(123);
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(4922);
+  });
 });
