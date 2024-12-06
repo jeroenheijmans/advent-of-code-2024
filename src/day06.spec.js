@@ -40,11 +40,10 @@ function part1(data) {
 }
 
 function part2(data) {
-  const maxx = Math.max(...data.map((p) => p.x));
-  const maxy = Math.max(...data.map((p) => p.y));
   const obstacles = data.filter((p) => p.char === "#");
   const map = new Map(obstacles.map((p) => [p.key, p]));
 
+  let guardStart = data.find((p) => p.char === "^");
   let { x, y } = data.find((p) => p.char === "^");
   let result = 0;
 
@@ -58,7 +57,7 @@ function part2(data) {
     if (map.get(newKey)) return;
 
     try {
-      const newData = [...data, { x: x2, y: y2, key: newKey, char: "#" }];
+      const newData = [...obstacles, guardStart, { x: x2, y: y2, key: newKey, char: "#" }];
       const _visits = findRouteVisits(newData);
     } catch (error) {
       if (error === "Loop found!") result++;
