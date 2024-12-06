@@ -2,7 +2,7 @@ import { describe, it, expect } from "bun:test";
 
 const day = "06";
 
-function findRouteSize(data) {
+function findRouteVisits(data) {
   const maxx = Math.max(...data.map((p) => p.x));
   const maxy = Math.max(...data.map((p) => p.y));
   const obstacles = data.filter((p) => p.char === "#");
@@ -32,11 +32,11 @@ function findRouteSize(data) {
       y += dir.dy;
     }
   }
-  return visited.size;
+  return visited;
 }
 
 function part1(data) {
-  return findRouteSize(data);
+  return findRouteVisits(data).size;
 }
 
 function part2(data) {
@@ -48,22 +48,23 @@ function part2(data) {
   let { x, y } = data.find((p) => p.char === "^");
   let result = 0;
 
-  for (let y2 = 0; y2 <= maxy; y2++) {
-    for (let x2 = 0; x2 <= maxx; x2++) {
-      const newKey = `${x2};${y2}`;
+  const defaultPath = findRouteVisits(data);
 
-      if (x2 === x && y2 === y) continue;
-      if (map.get(newKey)) continue;
+  defaultPath.forEach((point) => {
+    const [x2, y2] = point.split(";");
+    const newKey = `${x2};${y2}`;
 
-      try {
-        const newData = [...data, { x: x2, y: y2, key: newKey, char: "#"}];
-        const _size = findRouteSize(newData);
-      } catch (error) {
-        if (error === "Loop found!") result++;
-        else throw error;
-      }
+    if (x2 === x && y2 === y) return;
+    if (map.get(newKey)) return;
+
+    try {
+      const newData = [...data, { x: x2, y: y2, key: newKey, char: "#" }];
+      const _visits = findRouteVisits(newData);
+    } catch (error) {
+      if (error === "Loop found!") result++;
+      else throw error;
     }
-  }
+  });
   return result;
 }
 
