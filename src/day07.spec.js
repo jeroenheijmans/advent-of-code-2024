@@ -29,7 +29,32 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  function hasSolution(target, current, parts) {
+    if (parts.length === 0) return target === current;
+        
+    if (current > target) return false; // Perhaps part1 only?
+
+    const [head, ...tail] = parts;
+
+    const sum = current + head;
+    if (hasSolution(target, sum, tail)) return true;
+
+    const mul = current * head;
+    if (hasSolution(target, mul, tail)) return true;
+
+    const combined = parseInt(`${current}${head}`);
+    if (hasSolution(target, combined, tail)) return true;
+
+    return false;
+  }
+
+
+  return data
+    .map(({ result, parts }) => {
+      const [head, ...tail] = parts;
+      return hasSolution(result, head, tail) ? result : 0;
+    })
+    .reduce((a, b) => a + b, 0);
 }
 
 function parseInput(input) {
@@ -71,15 +96,15 @@ describe(`day${day}`, async () => {
     expect(result).toBe(1430271835320);
   });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(11387);
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(456565678667482);
+  });
 });
