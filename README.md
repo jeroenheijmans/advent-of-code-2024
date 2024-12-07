@@ -19,8 +19,8 @@ Here's what I learned (or noticed) each day.
 3. Copilot for AoC can be no fun.
 4. There shall be **no** premature optimization!
 5. Saving intermediate but wrong steps helps!
-6. TODO
-7. TODO
+6. Sometimes the first part is easy.
+7. Sometimes the hard part comes first.
 8. TODO
 9. TODO
 10. TODO
