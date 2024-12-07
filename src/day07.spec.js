@@ -2,57 +2,35 @@ import { describe, it, expect } from "bun:test";
 
 const day = "07";
 
+const add = (a, b) => a + b;
+const multiply = (a, b) => a * b;
+const combine = (a, b) => parseInt(`${a}${b}`);
+
+function hasSolution(ops, target, current, parts) {
+  if (parts.length === 0) return target === current;
+  if (current > target) return false;
+  const [head, ...tail] = parts;
+  return ops.some((op) => hasSolution(ops, target, op(current, head), tail));
+}
+
 function part1(data) {
-  function hasSolution(target, current, parts) {
-    if (parts.length === 0) return target === current;
-        
-    if (current > target) return false; // Perhaps part1 only?
-
-    const [head, ...tail] = parts;
-
-    const sum = current + head;
-    if (hasSolution(target, sum, tail)) return true;
-
-    const mul = current * head;
-    if (hasSolution(target, mul, tail)) return true;
-
-    return false;
-  }
-
-
+  const ops = [add, multiply];
   return data
     .map(({ result, parts }) => {
       const [head, ...tail] = parts;
-      return hasSolution(result, head, tail) ? result : 0;
+      return hasSolution(ops, result, head, tail) ? result : 0;
     })
     .reduce((a, b) => a + b, 0);
 }
 
 function part2(data) {
-  function hasSolution(target, current, parts) {
-    if (parts.length === 0) return target === current;
-        
-    if (current > target) return false; // Perhaps part1 only?
-
-    const [head, ...tail] = parts;
-
-    const sum = current + head;
-    if (hasSolution(target, sum, tail)) return true;
-
-    const mul = current * head;
-    if (hasSolution(target, mul, tail)) return true;
-
-    const combined = parseInt(`${current}${head}`);
-    if (hasSolution(target, combined, tail)) return true;
-
-    return false;
-  }
-
-
+  const ops = [add, multiply, combine];
   return data
     .map(({ result, parts }) => {
       const [head, ...tail] = parts;
-      return hasSolution(result, head, tail) ? result : 0;
+      return hasSolution(ops, result, head, tail)
+        ? result
+        : 0;
     })
     .reduce((a, b) => a + b, 0);
 }
