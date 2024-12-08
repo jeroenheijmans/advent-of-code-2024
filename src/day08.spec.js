@@ -47,7 +47,56 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const uniques = [...new Set(data.antennas.map((a) => a.char))];
+
+  const antenodes = uniques
+    .map((u) => data.antennas.filter((a) => a.char === u))
+    .map((subset) => {
+      const result = [];
+      for (const a1 of subset) {
+        for (const a2 of subset) {
+          if (a1 === a2) continue;
+          const dx = a1.x - a2.x;
+          const dy = a1.y - a2.y;
+
+          let n = 0;
+          while (true) {
+            const x = a2.x - (dx * n);
+            const y = a2.y - (dy * n);
+            
+            if (x < 0 || x >= data.xLength || y < 0 || y >= data.yLength) break;
+            
+            result.push({
+              key: `${x};${y}`,
+              x,
+              y,
+              char: a1.char,
+            });
+            
+            n++;
+          }
+        }
+      }
+      return result;
+    })
+    .flat();
+
+  // for (let y = 0; y < data.xLength; y++) {
+  //   let line = "";
+  //   for (let x = 0; x < data.xLength; x++) {
+  //     const alt = data.antennas.find((ant) => ant.x === x && ant.y === y)?.char;
+  //     line += antenodes.find((a) => a.x === x && a.y === y) ? "#" : alt || ".";
+  //   }
+  //   console.log(line);
+  // }
+
+  const keys = antenodes
+    .filter(
+      (a) => a.x >= 0 && a.x < data.xLength && a.y >= 0 && a.y < data.yLength
+    )
+    .map((a) => a.key);
+
+  return new Set(keys).size;
 }
 
 function parseInput(input) {
@@ -88,27 +137,27 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example)", () => {
-    const result = part1(parseInput(example));
-    console.log(`Day ${day}, part 1 (example):`, result);
-    expect(result).toBe(14);
-  });
-
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).not.toBe(254);
-  });
-
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
+  // it("should solve part 1 (example)", () => {
+  //   const result = part1(parseInput(example));
+  //   console.log(`Day ${day}, part 1 (example):`, result);
+  //   expect(result).toBe(14);
   // });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).not.toBe(254);
   // });
+
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(34);
+  });
+
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(905);
+  });
 });
