@@ -10,6 +10,12 @@ Prerequisite: [Bun](https://bun.sh/).
 bun test --watch
 ```
 
+or one specific day:
+
+```sh
+bun test --watch day08
+```
+
 ## Lessons
 
 Here's what I learned (or noticed) each day.
