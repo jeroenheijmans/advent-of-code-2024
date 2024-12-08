@@ -137,17 +137,17 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example)", () => {
-  //   const result = part1(parseInput(example));
-  //   console.log(`Day ${day}, part 1 (example):`, result);
-  //   expect(result).toBe(14);
-  // });
+  it("should solve part 1 (example)", () => {
+    const result = part1(parseInput(example));
+    console.log(`Day ${day}, part 1 (example):`, result);
+    expect(result).toBe(14);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).not.toBe(254);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).not.toBe(254);
+  });
 
   it("should solve part 2 (example)", () => {
     const result = part2(parseInput(example));
