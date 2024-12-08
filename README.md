@@ -27,7 +27,7 @@ Here's what I learned (or noticed) each day.
 5. Saving intermediate but wrong steps helps!
 6. Sometimes the first part is easy.
 7. Sometimes the hard part comes first.
-8. TODO
+8. Avoiding math *can* be useful.
 9. TODO
 10. TODO
 11. TODO
