@@ -3,7 +3,34 @@ import { describe, it, expect } from "bun:test";
 const day = "09";
 
 function part1(data) {
-  return data.length;
+  const diskmap = [];
+  for (let i = 0, idBefore = 0; i < data.length; i += 2, idBefore++) {
+    const fileDigit = parseInt(data[i]);
+    const freeDigit = parseInt(data[i + 1]);
+    const file = { digit: fileDigit, idBefore };
+    diskmap.push(...Array(fileDigit).fill(file));
+    if (freeDigit) diskmap.push(...Array(freeDigit).fill(null));
+  }
+
+  // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
+
+  const length = diskmap.length;
+  let start = 0;
+  let end = length - 1;
+  while (true) {
+    while (diskmap[start] !== null) start++;
+    while (diskmap[end] === null) end--;
+
+    if (start >= end) break;
+
+    diskmap[start] = diskmap[end];
+    diskmap[end] = null;
+  }
+
+  return diskmap
+    .filter((x) => !!x)
+    .map((item, index) => item.idBefore * index)
+    .reduce((a, b) => a + b, 0);
 }
 
 function part2(data) {
@@ -11,29 +38,25 @@ function part2(data) {
 }
 
 function parseInput(input) {
-  return input
-    .trim()
-    .split(/\r?\n/g)
-    .filter((x) => !!x);
+  return input.trim().split("");
 }
 
 describe(`day${day}`, async () => {
-  const example = `
-  `;
+  const example = `2333133121414131402`;
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
   it("should solve part 1 (example)", () => {
     const result = part1(parseInput(example));
     console.log(`Day ${day}, part 1 (example):`, result);
-    expect(result).toBe(0);
+    expect(result).toBe(1928);
   });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(6398608069280);
+  });
 
   // it("should solve part 2 (example)", () => {
   //   const result = part2(parseInput(example));
