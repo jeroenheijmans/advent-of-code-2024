@@ -2,6 +2,12 @@ import { describe, it, expect } from "bun:test";
 
 const day = "09";
 
+function checksum(diskmap) {
+  return diskmap
+    .map((item, index) => (item?.idBefore || 0) * index)
+    .reduce((a, b) => a + b, 0);
+}
+
 function part1(data) {
   const diskmap = [];
   for (let i = 0, idBefore = 0; i < data.length; i += 2, idBefore++) {
@@ -11,8 +17,6 @@ function part1(data) {
     diskmap.push(...Array(fileDigit).fill(file));
     if (freeDigit) diskmap.push(...Array(freeDigit).fill(null));
   }
-
-  // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
 
   const length = diskmap.length;
   let start = 0;
@@ -27,10 +31,7 @@ function part1(data) {
     diskmap[end] = null;
   }
 
-  return diskmap
-    .filter((x) => !!x)
-    .map((item, index) => item.idBefore * index)
-    .reduce((a, b) => a + b, 0);
+  return checksum(diskmap);
 }
 
 function part2(data) {
@@ -47,11 +48,7 @@ function part2(data) {
 
   const filesToConsider = allFiles.toSorted((a,b) => b.idBefore - a.idBefore);
 
-  const length = diskmap.length;
-  let end = length - 1;
   filesToConsider.forEach(file =>  {
-    // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""), "  ---  ", file.idBefore, " : ", file.digit);
-
     const fileIndex = diskmap.indexOf(file);
 
     let candidateStartIndex = null;
@@ -68,24 +65,18 @@ function part2(data) {
       } else {
         if (candidateLength >= file.digit) break;
         candidateStartIndex = null;
-        candidateLength = null;
       }
     }
 
-    if (candidateStartIndex !== null && candidateLength >= file.digit) {
-      // console.log("Moving!", file.idBefore)
+    if (candidateLength >= file.digit) {
       for (let i = 0; i < file.digit; i++) {
         diskmap[candidateStartIndex + i] = file;
         diskmap[fileIndex + i] = null;
       }
     }
   });
-  
-  // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
 
-  return diskmap
-    .map((item, index) => (item?.idBefore || 0) * index)
-    .reduce((a, b) => a + b, 0);
+  return checksum(diskmap);
 }
 
 function parseInput(input) {
@@ -97,17 +88,17 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example)", () => {
-  //   const result = part1(parseInput(example));
-  //   console.log(`Day ${day}, part 1 (example):`, result);
-  //   expect(result).toBe(1928);
-  // });
+  it("should solve part 1 (example)", () => {
+    const result = part1(parseInput(example));
+    console.log(`Day ${day}, part 1 (example):`, result);
+    expect(result).toBe(1928);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(6398608069280);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(6398608069280);
+  });
 
   it("should solve part 2 (example)", () => {
     const result = part2(parseInput(example));
