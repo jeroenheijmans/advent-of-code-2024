@@ -5,6 +5,7 @@ Solutions to the [Advent of Code 2024](https://adventofcode.com/2024) edition by
 ## Running
 
 Prerequisite: [Bun](https://bun.sh/).
+Also make sure there is a `dayXX.txt` file next to each spec with your puzzle input.
 
 ```sh
 bun test --watch
