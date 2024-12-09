@@ -35,27 +35,28 @@ function part1(data) {
 
 function part2(data) {
   const diskmap = [];
+  const allFiles = [];
   for (let i = 0, idBefore = 0; i < data.length; i += 2, idBefore++) {
     const fileDigit = parseInt(data[i]);
     const freeDigit = parseInt(data[i + 1]);
     const file = { digit: fileDigit, idBefore };
+    allFiles.push(file);
     diskmap.push(...Array(fileDigit).fill(file));
     if (freeDigit) diskmap.push(...Array(freeDigit).fill(null));
   }
 
+  const filesToConsider = allFiles.toSorted((a,b) => b.idBefore - a.idBefore);
+
   const length = diskmap.length;
   let end = length - 1;
-  while (true) {
-    console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
+  filesToConsider.forEach(file =>  {
+    // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""), "  ---  ", file.idBefore, " : ", file.digit);
 
-    while (diskmap[end] === null) end--;
-    if (end <= 0) break;
-
-    const file = diskmap[end];
+    const fileIndex = diskmap.indexOf(file);
 
     let candidateStartIndex = null;
     let candidateLength = 0;
-    for (let i = 0; i < diskmap.length; i++) {
+    for (let i = 0; i < fileIndex; i++) {
       if (diskmap[i] === null) {
         if (candidateStartIndex === null) {
           candidateStartIndex = i;
@@ -71,20 +72,19 @@ function part2(data) {
       }
     }
 
-    if (candidateStartIndex !== null) {
+    if (candidateStartIndex !== null && candidateLength >= file.digit) {
+      // console.log("Moving!", file.idBefore)
       for (let i = 0; i < file.digit; i++) {
         diskmap[candidateStartIndex + i] = file;
-        diskmap[end - i] = null;
+        diskmap[fileIndex + i] = null;
       }
-      end -= file.digit;
     }
-  }
+  });
   
   // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
 
   return diskmap
-    .filter((x) => !!x)
-    .map((item, index) => item.idBefore * index)
+    .map((item, index) => (item?.idBefore || 0) * index)
     .reduce((a, b) => a + b, 0);
 }
 
@@ -115,9 +115,9 @@ describe(`day${day}`, async () => {
     expect(result).toBe(2858);
   });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(6427437134372);
+  });
 });
