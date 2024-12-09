@@ -34,7 +34,58 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const diskmap = [];
+  for (let i = 0, idBefore = 0; i < data.length; i += 2, idBefore++) {
+    const fileDigit = parseInt(data[i]);
+    const freeDigit = parseInt(data[i + 1]);
+    const file = { digit: fileDigit, idBefore };
+    diskmap.push(...Array(fileDigit).fill(file));
+    if (freeDigit) diskmap.push(...Array(freeDigit).fill(null));
+  }
+
+  const length = diskmap.length;
+  let end = length - 1;
+  while (true) {
+    console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
+
+    while (diskmap[end] === null) end--;
+    if (end <= 0) break;
+
+    const file = diskmap[end];
+
+    let candidateStartIndex = null;
+    let candidateLength = 0;
+    for (let i = 0; i < diskmap.length; i++) {
+      if (diskmap[i] === null) {
+        if (candidateStartIndex === null) {
+          candidateStartIndex = i;
+          candidateLength = 1;
+        }
+        else {
+          candidateLength++;
+        }
+      } else {
+        if (candidateLength >= file.digit) break;
+        candidateStartIndex = null;
+        candidateLength = null;
+      }
+    }
+
+    if (candidateStartIndex !== null) {
+      for (let i = 0; i < file.digit; i++) {
+        diskmap[candidateStartIndex + i] = file;
+        diskmap[end - i] = null;
+      }
+      end -= file.digit;
+    }
+  }
+  
+  // console.log(diskmap.map(x => x !== null ? x.idBefore : ".").join(""));
+
+  return diskmap
+    .filter((x) => !!x)
+    .map((item, index) => item.idBefore * index)
+    .reduce((a, b) => a + b, 0);
 }
 
 function parseInput(input) {
@@ -46,23 +97,23 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example)", () => {
-    const result = part1(parseInput(example));
-    console.log(`Day ${day}, part 1 (example):`, result);
-    expect(result).toBe(1928);
-  });
-
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(6398608069280);
-  });
-
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
+  // it("should solve part 1 (example)", () => {
+  //   const result = part1(parseInput(example));
+  //   console.log(`Day ${day}, part 1 (example):`, result);
+  //   expect(result).toBe(1928);
   // });
+
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).toBe(6398608069280);
+  // });
+
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(2858);
+  });
 
   // it("should solve part 2", () => {
   //   const result = part2(parseInput(input));
