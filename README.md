@@ -30,7 +30,7 @@ Here's what I learned (or noticed) each day.
 7. Sometimes the hard part comes first.
 8. Avoiding math *can* be useful.
 9. Be glad that smart folks write (de)fragmenters.
-10. TODO
+10. If you understand the lesson, stop here; otherwise, see lesson 10.
 11. TODO
 12. TODO
 13. TODO
