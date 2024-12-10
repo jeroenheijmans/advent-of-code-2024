@@ -37,7 +37,37 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const maxx = Math.max(...data.map((p) => p.x));
+  const maxy = Math.max(...data.map((p) => p.y));
+
+  const map = data.reduce((result, next) => {
+    result[next.key] = next;
+    return result;
+  }, {});
+
+  const zeros = data.filter((p) => p.value === 0);
+
+  function neighbors({ x, y }) {
+    const result = [];
+    if (x > 0 && y >= 0 && y <= maxy) result.push(map[`${x - 1};${y}`]);
+    if (y > 0 && x >= 0 && x <= maxx) result.push(map[`${x};${y - 1}`]);
+    if (x < maxx && y >= 0 && y <= maxy) result.push(map[`${x + 1};${y}`]);
+    if (y < maxy && x >= 0 && x <= maxy) result.push(map[`${x};${y + 1}`]);
+    return result;
+  }
+
+  function recursivelyFindEnds(current) {
+    if (current.value === 9) return [current.key];
+    const target = current.value + 1;
+    return neighbors(current)
+      .filter((neighbor) => neighbor.value === target)
+      .map((neighbor) => recursivelyFindEnds(neighbor))
+      .flat();
+  }
+
+  return zeros
+    .map((z) => recursivelyFindEnds(z))
+    .reduce((p, c) => p + c.length, 0);
 }
 
 function parseInput(input) {
@@ -69,27 +99,27 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example)", () => {
-    const result = part1(parseInput(example));
-    console.log(`Day ${day}, part 1 (example):`, result);
-    expect(result).toBe(36);
-  });
-
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(688);
-  });
-
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
+  // it("should solve part 1 (example)", () => {
+  //   const result = part1(parseInput(example));
+  //   console.log(`Day ${day}, part 1 (example):`, result);
+  //   expect(result).toBe(36);
   // });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).toBe(688);
   // });
+
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(81);
+  });
+
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(1459);
+  });
 });
