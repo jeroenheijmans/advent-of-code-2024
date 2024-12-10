@@ -2,7 +2,7 @@ import { describe, it, expect } from "bun:test";
 
 const day = "10";
 
-function part1(data) {
+function recursivelySolve(data) {
   const maxx = Math.max(...data.map((p) => p.x));
   const maxy = Math.max(...data.map((p) => p.y));
 
@@ -10,8 +10,6 @@ function part1(data) {
     result[next.key] = next;
     return result;
   }, {});
-
-  const zeros = data.filter((p) => p.value === 0);
 
   function neighbors({ x, y }) {
     const result = [];
@@ -31,43 +29,15 @@ function part1(data) {
       .flat();
   }
 
-  return zeros
-    .map((z) => new Set(recursivelyFindEnds(z)))
-    .reduce((p, c) => p + c.size, 0);
+  return data.filter((p) => p.value === 0).map((z) => recursivelyFindEnds(z));
+}
+
+function part1(data) {
+  return recursivelySolve(data).reduce((p, c) => p + new Set(c).size, 0);
 }
 
 function part2(data) {
-  const maxx = Math.max(...data.map((p) => p.x));
-  const maxy = Math.max(...data.map((p) => p.y));
-
-  const map = data.reduce((result, next) => {
-    result[next.key] = next;
-    return result;
-  }, {});
-
-  const zeros = data.filter((p) => p.value === 0);
-
-  function neighbors({ x, y }) {
-    const result = [];
-    if (x > 0 && y >= 0 && y <= maxy) result.push(map[`${x - 1};${y}`]);
-    if (y > 0 && x >= 0 && x <= maxx) result.push(map[`${x};${y - 1}`]);
-    if (x < maxx && y >= 0 && y <= maxy) result.push(map[`${x + 1};${y}`]);
-    if (y < maxy && x >= 0 && x <= maxy) result.push(map[`${x};${y + 1}`]);
-    return result;
-  }
-
-  function recursivelyFindEnds(current) {
-    if (current.value === 9) return [current.key];
-    const target = current.value + 1;
-    return neighbors(current)
-      .filter((neighbor) => neighbor.value === target)
-      .map((neighbor) => recursivelyFindEnds(neighbor))
-      .flat();
-  }
-
-  return zeros
-    .map((z) => recursivelyFindEnds(z))
-    .reduce((p, c) => p + c.length, 0);
+  return recursivelySolve(data).reduce((p, c) => p + c.length, 0);
 }
 
 function parseInput(input) {
