@@ -31,7 +31,7 @@ Here's what I learned (or noticed) each day.
 8. Avoiding math *can* be useful.
 9. Be glad that smart folks write (de)fragmenters.
 10. If you understand the lesson, stop here; otherwise, see lesson 10.
-11. TODO
+11. You've got to memoize important things!
 12. TODO
 13. TODO
 14. TODO
