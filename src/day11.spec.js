@@ -4,14 +4,15 @@ const day = "11";
 
 function part1(data) {
   data.forEach((item, i) => {
-    if (i  > 0) item.left = data[i - 1];
+    if (i > 0) item.left = data[i - 1];
     if (i < data.length - 1) item.right = data[i + 1];
   });
 
   let start = data[0];
   let current = start;
 
-  const concat = item => `${item.value} ${item.right ? concat(item.right) : ""}`;
+  const concat = (item) =>
+    `${item.value} ${item.right ? concat(item.right) : ""}`;
 
   let i = 0;
   while (i++ < 25) {
@@ -19,7 +20,7 @@ function part1(data) {
       const next = current.right;
       if (current.value === 0) current.value = 1;
       else {
-        const str = current.value.toString(); 
+        const str = current.value.toString();
         if (str.length % 2 === 0) {
           const newStone = {
             left: current,
@@ -51,17 +52,56 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const splitUpMap = {
+    0: ["1"],
+    17: ["1", "7"],
+    125: ["253000"],
+  };
+
+  let currentMap = data.reduce((result, next) => {
+    if (!result[next.str]) result[next.str] = 0;
+    result[next.str]++;
+    return result;
+  }, {});
+
+  let i = 0;
+  while (i++ < 75) {
+    const newMap = {};
+
+    for (const [key, value] of Object.entries(currentMap)) {
+      if (!splitUpMap[key]) {
+        if (key.length % 2 === 0) {
+          splitUpMap[key] = [
+            `${parseInt(key.substring(0, key.length / 2))}`,
+            `${parseInt(key.substring(key.length / 2))}`,
+          ];
+        } else {
+          splitUpMap[key] = [`${2024 * parseInt(key)}`];
+        }
+      }
+      splitUpMap[key].forEach((n) => {
+        newMap[n] = newMap[n] || 0;
+        newMap[n] += value;
+      });
+    }
+
+    currentMap = newMap;
+  }
+
+  // console.log(currentMap);
+
+  return Object.values(currentMap).reduce((a, b) => a + b, 0);
 }
 
 function parseInput(input) {
   return input
     .trim()
     .split(/\s+/g)
-    .map(n => ({
+    .map((str) => ({
       left: null,
       right: null,
-      value: parseInt(n),
+      value: parseInt(str),
+      str,
     }));
 }
 
@@ -82,15 +122,15 @@ describe(`day${day}`, async () => {
     expect(result).toBe(216042);
   });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(65601038650482);
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(255758646442399);
+  });
 });
