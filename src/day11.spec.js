@@ -2,70 +2,15 @@ import { describe, it, expect } from "bun:test";
 
 const day = "11";
 
-function part1(data) {
-  data.forEach((item, i) => {
-    if (i > 0) item.left = data[i - 1];
-    if (i < data.length - 1) item.right = data[i + 1];
-  });
-
-  let start = data[0];
-  let current = start;
-
-  const concat = (item) =>
-    `${item.value} ${item.right ? concat(item.right) : ""}`;
-
-  let i = 0;
-  while (i++ < 25) {
-    do {
-      const next = current.right;
-      if (current.value === 0) current.value = 1;
-      else {
-        const str = current.value.toString();
-        if (str.length % 2 === 0) {
-          const newStone = {
-            left: current,
-            right: current.right,
-            value: parseInt(str.substring(str.length / 2)),
-          };
-          current.right = newStone;
-          current.left = current.left;
-          current.value = parseInt(str.substring(0, str.length / 2));
-        } else {
-          current.value *= 2024;
-        }
-      }
-      current = next;
-    } while (current);
-
-    // console.log(concat(start));
-
-    current = start;
-  }
-
-  i = 0;
-  current = start;
-  while (current) {
-    i++;
-    current = current.right;
-  }
-  return i;
-}
-
-function part2(data) {
-  const splitUpMap = {
-    0: ["1"],
-    17: ["1", "7"],
-    125: ["253000"],
-  };
+function solve(data, iterations = 25) {
+  const splitUpMap = { 0: ["1"] };
 
   let currentMap = data.reduce((result, next) => {
-    if (!result[next.str]) result[next.str] = 0;
-    result[next.str]++;
+    result[next] = (result[next] || 0) + 1;
     return result;
   }, {});
 
-  let i = 0;
-  while (i++ < 75) {
+  for (let i = 0; i++ < iterations; ) {
     const newMap = {};
 
     for (const [key, value] of Object.entries(currentMap)) {
@@ -80,29 +25,26 @@ function part2(data) {
         }
       }
       splitUpMap[key].forEach((n) => {
-        newMap[n] = newMap[n] || 0;
-        newMap[n] += value;
+        newMap[n] = (newMap[n] || 0) + value;
       });
     }
 
     currentMap = newMap;
   }
 
-  // console.log(currentMap);
-
   return Object.values(currentMap).reduce((a, b) => a + b, 0);
 }
 
+function part1(data) {
+  return solve(data);
+}
+
+function part2(data) {
+  return solve(data, 75);
+}
+
 function parseInput(input) {
-  return input
-    .trim()
-    .split(/\s+/g)
-    .map((str) => ({
-      left: null,
-      right: null,
-      value: parseInt(str),
-      str,
-    }));
+  return input.trim().split(/\s+/g);
 }
 
 describe(`day${day}`, async () => {
