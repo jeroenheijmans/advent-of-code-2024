@@ -95,11 +95,6 @@ function part2(data) {
     }, [])
     // Merge wall segments that accidentally got split up by the above crappy algorithm
     .reduce(adhocMerging, [])
-    .reduce(adhocMerging, [])
-    .reduce(adhocMerging, [])
-    .reduce(adhocMerging, [])
-    .reduce(adhocMerging, [])
-    .reduce(adhocMerging, [])
     .reduce(adhocMerging, []);
 
   // areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
@@ -124,7 +119,7 @@ function parseInput(input) {
 }
 
 describe(`day${day}`, async () => {
-  const example = `
+  const example1 = `
 RRRRIICCFF
 RRRRIICCCF
 VVRRRCCFFF
@@ -161,12 +156,32 @@ ABBAAA
 AAAAAA
   `;
 
+  const example5 = `
+OOOOO
+OXOXO
+OOOOO
+OXOXO
+OOOOO
+  `;
+
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example)", () => {
-    const result = part1(parseInput(example));
-    console.log(`Day ${day}, part 1 (example):`, result);
+  it("should solve part 1 (example 1)", () => {
+    const result = part1(parseInput(example1));
+    console.log(`Day ${day}, part 1 (example 1):`, result);
     expect(result).toBe(1930);
+  });
+
+  it("should solve part 1 (example 2)", () => {
+    const result = part1(parseInput(example2));
+    console.log(`Day ${day}, part 1 (example 2):`, result);
+    expect(result).toBe(140);
+  });
+
+  it("should solve part 1 (example 5)", () => {
+    const result = part1(parseInput(example5));
+    console.log(`Day ${day}, part 1 (example 5):`, result);
+    expect(result).toBe(772);
   });
 
   it("should solve part 1", () => {
@@ -175,9 +190,9 @@ AAAAAA
     expect(result).toBe(1449902);
   });
 
-  it("should solve part 2 (example)", () => {
-    const result = part2(parseInput(example));
-    console.log(`Day ${day}, part 2 (example):`, result);
+  it("should solve part 2 (example 1)", () => {
+    const result = part2(parseInput(example1));
+    console.log(`Day ${day}, part 2 (example 1):`, result);
     expect(result).toBe(1206);
   });
 
@@ -197,6 +212,12 @@ AAAAAA
     const result = part2(parseInput(example4));
     console.log(`Day ${day}, part 2 (example 4):`, result);
     expect(result).toBe(368);
+  });
+
+  it("should solve part 2 (example 5)", () => {
+    const result = part2(parseInput(example5));
+    console.log(`Day ${day}, part 2 (example 5):`, result);
+    expect(result).toBe(436);
   });
 
   it("should solve part 2", () => {
