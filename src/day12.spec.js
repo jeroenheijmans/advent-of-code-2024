@@ -3,33 +3,35 @@ import { describe, it, expect } from "bun:test";
 const day = "12";
 
 function part1(data) {
-  let areas = data.map((point) => [point]);
-
+  
   const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
   const isAdjacentTo = (one, two) =>
     one.some((a1) => two.some((a2) => distance(a1, a2) === 1));
   const merge = (one, two) => [...one, ...two];
+  
+  const areas = [];
+  const todo = new Set(data);
+  while (todo.size > 0) {
+    const start = todo.values().next().value;
+    const area = new Set();
+    area.add(start);
+    todo.delete(start);
 
-  let hasJustFolded = false;
-  do {
-    hasJustFolded = false;
-
-    for (const one of areas) {
-      const two = areas.find(
-        (a) => a !== one && a[0].plant === one[0].plant && isAdjacentTo(a, one)
-      );
-      if (two) {
-        areas = [
-          ...areas.filter((a) => a !== one && a !== two),
-          merge(one, two),
-        ];
-        hasJustFolded = true;
-        break;
-      }
+    function keepAddingFrom(lead) {
+      const extras = data
+        .filter(e => todo.has(e) && e.plant === lead.plant && distance(e, lead) === 1);
+      
+      extras.forEach(e => {
+        area.add(e);
+        todo.delete(e);
+        keepAddingFrom(e);
+      });
     }
-  } while (hasJustFolded);
 
-  // console.log(areas.map((a) => ({ plant: a[0].plant, len: a.length })));
+    keepAddingFrom(start);
+
+    areas.push([...area]);
+  }
 
   const perimeter = (area) =>
     area
@@ -79,7 +81,7 @@ MMMISSJEEE
   it("should solve part 1", () => {
     const result = part1(parseInput(input));
     console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(0);
+    expect(result).toBe(1449902);
   });
 
   // it("should solve part 2 (example)", () => {
