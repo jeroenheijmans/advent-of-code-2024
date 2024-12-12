@@ -32,7 +32,7 @@ Here's what I learned (or noticed) each day.
 9. Be glad that smart folks write (de)fragmenters.
 10. If you understand the lesson, stop here; otherwise, see lesson 10.
 11. You've got to memoize important things!
-12. TODO
+12. Take a bit of luck if you can catch it.
 13. TODO
 14. TODO
 15. TODO
