@@ -98,15 +98,6 @@ function part2(data) {
     .reduce(adhocMerging, [])
     .reduce(adhocMerging, []);
 
-  // areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
-  // console.log();
-  // sides(areas.find(a => a[0].plant === "E")).forEach(s => {
-  //   const base = s[0].type === "ver" ? "y = " + s[0].y : "x = " + s[0].x;
-  //   const coords = s.map(p => s[0].type === "ver" ? p.x : p.y).join(", ");
-  //   console.log(s[0].type, "", base.toString().padEnd(6, " "), "   =>   ", coords);
-  // });
-  // console.log();
-
   return areas.map(a => a.length * sides(a).length).reduce((a,b) => a + b, 0);
 }
 
@@ -224,10 +215,6 @@ OOOOO
   it("should solve part 2", () => {
     const result = part2(parseInput(input));
     console.log(`Day ${day}, part 2:`, result);
-    expect(result).toBeGreaterThan(903391);
-    expect(result).toBeGreaterThan(906157);
-    expect(result).toBeLessThan(908755);    
-    expect(result).not.toBe(908107);
-    expect(result).toBe(0);
+    expect(result).toBe(908042);
   });
 });
