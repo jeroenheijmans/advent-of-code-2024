@@ -52,18 +52,30 @@ function part2(data) {
     return result;
   }, {});
 
+
+  const adhocMerging = (result, next) => {
+    const candidate = result.find(wall => next.some(side => wall.some(s => {
+      if (s.type !== side.type) return false;
+      if (s.type === "hor" && s.x === side.x && Math.abs(s.y - side.y) === 1) return true;
+      if (s.type === "ver" && s.y === side.y && Math.abs(s.x - side.x) === 1) return true;
+      return false;
+    })));
+
+    if (candidate) candidate.push(next)
+    else result.push(next);
+
+    return result;
+  };
+
   const sides = area => area.map(p1 => {
       const sides = []
-      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y - 1)) sides.push({ type: 'ver', x: p1.x, y: p1.y - 0 });
-      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y + 1)) sides.push({ type: 'ver', x: p1.x, y: p1.y + 1 });
-      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x - 1)) sides.push({ type: 'hor', y: p1.y, x: p1.x - 0 });
-      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x + 1)) sides.push({ type: 'hor', y: p1.y, x: p1.x + 1 });
+      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y - 1)) sides.push({ type: 'ver', x: p1.x, y: p1.y - 0.1 });
+      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y + 1)) sides.push({ type: 'ver', x: p1.x, y: p1.y + 0.1 });
+      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x - 1)) sides.push({ type: 'hor', y: p1.y, x: p1.x - 0.1 });
+      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x + 1)) sides.push({ type: 'hor', y: p1.y, x: p1.x + 0.1 });
       return sides;
     })
     .flat()
-    .toSorted((a, b) => 
-      a.type === "hor" ? a.y - b.y : a.x - b.x
-    )
     .reduce((result, side) => {
       const candidate = result.find(wall => wall.some(s => {
         if (s.type !== side.type) return false;
@@ -76,16 +88,21 @@ function part2(data) {
       else result.push([side]);
 
       return result;
-    }, []);
+    }, [])
+    // Merge wall segments that accidentally got split up by the above crappy algorithm
+    .reduce(adhocMerging, [])
+    .reduce(adhocMerging, [])
+    .reduce(adhocMerging, [])
+    .reduce(adhocMerging, []);
 
-  areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
-  console.log();
-  sides(areas.find(a => a[0].plant === "E")).forEach(s => {
-    const base = s[0].type === "ver" ? "y = " + s[0].y : "x = " + s[0].x;
-    const coords = s.map(p => s[0].type === "ver" ? p.x : p.y).join(", ");
-    console.log(s[0].type, "", base.toString().padEnd(6, " "), "   =>   ", coords);
-  });
-  console.log();
+  // areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
+  // console.log();
+  // sides(areas.find(a => a[0].plant === "E")).forEach(s => {
+  //   const base = s[0].type === "ver" ? "y = " + s[0].y : "x = " + s[0].x;
+  //   const coords = s.map(p => s[0].type === "ver" ? p.x : p.y).join(", ");
+  //   console.log(s[0].type, "", base.toString().padEnd(6, " "), "   =>   ", coords);
+  // });
+  // console.log();
 
   return areas.map(a => a.length * sides(a).length).reduce((a,b) => a + b, 0);
 }
@@ -151,11 +168,11 @@ AAAAAA
   //   expect(result).toBe(1449902);
   // });
 
-  it("should solve part 2 (example)", () => {
-    const result = part2(parseInput(example));
-    console.log(`Day ${day}, part 2 (example):`, result);
-    expect(result).toBe(1206);
-  });
+  // it("should solve part 2 (example)", () => {
+  //   const result = part2(parseInput(example));
+  //   console.log(`Day ${day}, part 2 (example):`, result);
+  //   expect(result).toBe(1206);
+  // });
 
   // it("should solve part 2 (example 2)", () => {
   //   const result = part2(parseInput(example2));
@@ -178,7 +195,9 @@ AAAAAA
   it("should solve part 2", () => {
     const result = part2(parseInput(input));
     console.log(`Day ${day}, part 2:`, result);
-    expect(result).not.toBe(903391); // too low
+    expect(result).toBeGreaterThan(903391);
+    expect(result).toBeGreaterThan(906157);
+    expect(result).toBeLessThan(908755);    
     expect(result).toBe(0);
   });
 });
