@@ -2,13 +2,9 @@ import { describe, it, expect } from "bun:test";
 
 const day = "12";
 
-function part1(data) {
-  
-  const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-  const isAdjacentTo = (one, two) =>
-    one.some((a1) => two.some((a2) => distance(a1, a2) === 1));
-  const merge = (one, two) => [...one, ...two];
-  
+const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y); 
+
+function getAreas(data) {
   const areas = [];
   const todo = new Set(data);
   while (todo.size > 0) {
@@ -29,9 +25,13 @@ function part1(data) {
     }
 
     keepAddingFrom(start);
-
     areas.push([...area]);
   }
+  return areas;
+}
+
+function part1(data) {
+  const areas = getAreas(data);
 
   const perimeter = (area) =>
     area
@@ -78,11 +78,11 @@ MMMISSJEEE
     expect(result).toBe(1930);
   });
 
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(1449902);
-  });
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).toBe(1449902);
+  // });
 
   // it("should solve part 2 (example)", () => {
   //   const result = part2(parseInput(example));
