@@ -80,6 +80,7 @@ function part2(data) {
       return sides;
     })
     .flat()
+    .toSorted((a,b) => a.type !== b.type ? 0 : a.type === "ver" ? a.x - b.x : a.y - b.y)
     .reduce((result, side) => {
       const candidate = result.find(wall => wall.some(s => {
         if (s.type !== side.type) return false;
