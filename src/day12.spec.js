@@ -6,6 +6,11 @@ const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 const key = (p) => `${p.x};${p.y}`;
 
 function getAreas(data) {
+  const map = data.reduce((result, next) => {
+    result[key(next)] = next;
+    return result;
+  }, {});
+
   const areas = [];
   const todo = new Set(data);
   while (todo.size > 0) {
@@ -15,8 +20,13 @@ function getAreas(data) {
     todo.delete(start);
 
     function keepAddingFrom(lead) {
-      const extras = data
-        .filter(e => todo.has(e) && e.plant === lead.plant && distance(e, lead) === 1);
+      const extras = [
+        map[key({ x: lead.x - 1, y: lead.y })],
+        map[key({ x: lead.x + 1, y: lead.y })],
+        map[key({ x: lead.x, y: lead.y - 1 })],
+        map[key({ x: lead.x, y: lead.y + 1 })],
+      ]
+        .filter(e => todo.has(e) && e.plant === lead.plant);
       
       extras.forEach(e => {
         area.add(e);
@@ -46,12 +56,6 @@ function part1(data) {
 
 function part2(data) {
   const areas = getAreas(data);
-
-  const map = data.reduce((result, next) => {
-    result[key(next)] = next;
-    return result;
-  }, {});
-
 
   const adhocMerging = (result, next) => {
     const candidate = result.find(wall => next.some(side => wall.some(s => {
@@ -156,41 +160,41 @@ AAAAAA
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example)", () => {
-  //   const result = part1(parseInput(example));
-  //   console.log(`Day ${day}, part 1 (example):`, result);
-  //   expect(result).toBe(1930);
-  // });
+  it("should solve part 1 (example)", () => {
+    const result = part1(parseInput(example));
+    console.log(`Day ${day}, part 1 (example):`, result);
+    expect(result).toBe(1930);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(1449902);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(1449902);
+  });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(1206);
-  // });
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(1206);
+  });
 
-  // it("should solve part 2 (example 2)", () => {
-  //   const result = part2(parseInput(example2));
-  //   console.log(`Day ${day}, part 2 (example 2):`, result);
-  //   expect(result).toBe(80);
-  // });
+  it("should solve part 2 (example 2)", () => {
+    const result = part2(parseInput(example2));
+    console.log(`Day ${day}, part 2 (example 2):`, result);
+    expect(result).toBe(80);
+  });
 
-  // it("should solve part 2 (example 3)", () => {
-  //   const result = part2(parseInput(example3));
-  //   console.log(`Day ${day}, part 2 (example 3):`, result);
-  //   expect(result).toBe(236);
-  // });
+  it("should solve part 2 (example 3)", () => {
+    const result = part2(parseInput(example3));
+    console.log(`Day ${day}, part 2 (example 3):`, result);
+    expect(result).toBe(236);
+  });
 
-  // it("should solve part 2 (example 4)", () => {
-  //   const result = part2(parseInput(example4));
-  //   console.log(`Day ${day}, part 2 (example 4):`, result);
-  //   expect(result).toBe(368);
-  // });
+  it("should solve part 2 (example 4)", () => {
+    const result = part2(parseInput(example4));
+    console.log(`Day ${day}, part 2 (example 4):`, result);
+    expect(result).toBe(368);
+  });
 
   it("should solve part 2", () => {
     const result = part2(parseInput(input));
