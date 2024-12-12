@@ -54,18 +54,21 @@ function part2(data) {
 
   const sides = area => area.map(p1 => {
       const sides = []
-      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y - 1)) sides.push({ type: 'hor', x: p1.x, y: p1.y - 0.5 });
-      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y + 1)) sides.push({ type: 'hor', x: p1.x, y: p1.y + 0.5 });
-      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x - 1)) sides.push({ type: 'ver', y: p1.y, x: p1.x - 0.5 });
-      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x + 1)) sides.push({ type: 'ver', y: p1.y, x: p1.x + 0.5 });
+      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y - 1)) sides.push({ type: 'ver', x: p1.x, y: p1.y - 0 });
+      if (!area.some(p2 => p2.x === p1.x && p2.y === p1.y + 1)) sides.push({ type: 'ver', x: p1.x, y: p1.y + 1 });
+      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x - 1)) sides.push({ type: 'hor', y: p1.y, x: p1.x - 0 });
+      if (!area.some(p2 => p2.y === p1.y && p2.x === p1.x + 1)) sides.push({ type: 'hor', y: p1.y, x: p1.x + 1 });
       return sides;
     })
     .flat()
+    .toSorted((a, b) => 
+      a.type === "hor" ? a.y - b.y : a.x - b.x
+    )
     .reduce((result, side) => {
       const candidate = result.find(wall => wall.some(s => {
         if (s.type !== side.type) return false;
-        if (s.type === "ver" && s.x === side.x && Math.abs(s.y - side.y) === 1) return true;
-        if (s.type === "hor" && s.y === side.y && Math.abs(s.x - side.x) === 1) return true;
+        if (s.type === "hor" && s.x === side.x && Math.abs(s.y - side.y) === 1) return true;
+        if (s.type === "ver" && s.y === side.y && Math.abs(s.x - side.x) === 1) return true;
         return false;
       }));
       
@@ -75,8 +78,14 @@ function part2(data) {
       return result;
     }, []);
 
-  // areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
-  // console.log(sides(areas[0]));
+  areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
+  console.log();
+  sides(areas.find(a => a[0].plant === "E")).forEach(s => {
+    const base = s[0].type === "ver" ? "y = " + s[0].y : "x = " + s[0].x;
+    const coords = s.map(p => s[0].type === "ver" ? p.x : p.y).join(", ");
+    console.log(s[0].type, "", base.toString().padEnd(6, " "), "   =>   ", coords);
+  });
+  console.log();
 
   return areas.map(a => a.length * sides(a).length).reduce((a,b) => a + b, 0);
 }
@@ -111,6 +120,23 @@ BBCC
 EEEC
   `;
 
+  const example3 = `
+EEEEE
+EXXXX
+EEEEE
+EXXXX
+EEEEE
+  `;
+
+  const example4 = `
+AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA
+  `;
+
   const input = await Bun.file(`src/day${day}.txt`).text();
 
   // it("should solve part 1 (example)", () => {
@@ -125,21 +151,34 @@ EEEC
   //   expect(result).toBe(1449902);
   // });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(1206);
+  it("should solve part 2 (example)", () => {
+    const result = part2(parseInput(example));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(1206);
+  });
+
+  // it("should solve part 2 (example 2)", () => {
+  //   const result = part2(parseInput(example2));
+  //   console.log(`Day ${day}, part 2 (example 2):`, result);
+  //   expect(result).toBe(80);
   // });
 
-  it("should solve part 2 (example 2)", () => {
-    const result = part2(parseInput(example2));
-    console.log(`Day ${day}, part 2 (example 2):`, result);
-    expect(result).toBe(80);
-  });
+  // it("should solve part 2 (example 3)", () => {
+  //   const result = part2(parseInput(example3));
+  //   console.log(`Day ${day}, part 2 (example 3):`, result);
+  //   expect(result).toBe(236);
+  // });
+
+  // it("should solve part 2 (example 4)", () => {
+  //   const result = part2(parseInput(example4));
+  //   console.log(`Day ${day}, part 2 (example 4):`, result);
+  //   expect(result).toBe(368);
+  // });
 
   it("should solve part 2", () => {
     const result = part2(parseInput(input));
     console.log(`Day ${day}, part 2:`, result);
+    expect(result).not.toBe(903391); // too low
     expect(result).toBe(0);
   });
 });
