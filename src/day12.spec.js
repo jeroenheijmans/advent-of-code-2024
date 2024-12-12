@@ -97,6 +97,9 @@ function part2(data) {
     .reduce(adhocMerging, [])
     .reduce(adhocMerging, [])
     .reduce(adhocMerging, [])
+    .reduce(adhocMerging, [])
+    .reduce(adhocMerging, [])
+    .reduce(adhocMerging, [])
     .reduce(adhocMerging, []);
 
   // areas.forEach(a => console.log("Area", a[0].plant, " = length ", a.length, " *  sides", sides(a).length));
@@ -202,6 +205,7 @@ AAAAAA
     expect(result).toBeGreaterThan(903391);
     expect(result).toBeGreaterThan(906157);
     expect(result).toBeLessThan(908755);    
+    expect(result).not.toBe(908107);
     expect(result).toBe(0);
   });
 });
