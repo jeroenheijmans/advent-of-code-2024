@@ -18,16 +18,29 @@ function part1(data, maxx = 101, maxy = 103, iterations = 100) {
     if (robot.x > middleX && robot.y > middleY) quadrantCounts[3]++;
   });
 
-  // console.log(data);
-  // console.log(quadrantCounts);
-
   return quadrantCounts.reduce((a,b) => a * b, 1);
 }
 
-function part2(data) {
-  return data.length;
-}
+function part2(data, maxx = 101, maxy = 103) {
 
+  for (let i = 0; i < 20000; i++) {
+    data.forEach(robot => {
+      robot.x = (robot.x + robot.vx + maxx) % maxx;
+      robot.y = (robot.y + robot.vy + maxy) % maxy;
+    });
+    
+    for (let y = 0; y < maxy; y++) {
+      let line = "";
+      for (let x = 0; x < maxx; x++) {
+        line += data.find(r => r.x === x && r.y === y) ? "#" : ".";
+      }
+      console.log(line);
+    }
+    console.log();
+  }
+
+  return 1;
+}
 function parseInput(input) {
   return input
     .trim()
@@ -71,15 +84,9 @@ p=9,5 v=-3,-3
     expect(result).toBe(216027840);
   });
 
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
-  // });
-
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(0);
+  });
 });
