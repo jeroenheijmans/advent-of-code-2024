@@ -34,7 +34,7 @@ Here's what I learned (or noticed) each day.
 11. You've got to memoize important things!
 12. Take a bit of luck if you can catch it.
 13. TODO
-14. TODO
+14. Don't solve part 2 until you know what part 2 is.
 15. TODO
 16. TODO
 17. TODO
