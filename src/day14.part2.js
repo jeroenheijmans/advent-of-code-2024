@@ -2,17 +2,25 @@ const day = "14";
 
 async function part2(data, maxx = 101, maxy = 103) {
   process.stdout.write("\x1b[2J");
-  const middleY = 50;
-  const half = data.length / 1.5;
+  const threshold = data.length / 2.5;
 
-  for (let i = 0; i < 20000000; i++) {
+  for (let i = 1; i < 20000000; i++) {
     if (i % 1e5 === 0) console.log(i);
+
     data.forEach((robot) => {
       robot.x = (robot.x + robot.vx + maxx) % maxx;
       robot.y = (robot.y + robot.vy + maxy) % maxy;
     });
 
-    if (data.filter(r => r.y > middleY).length < half) continue;
+    const isAdjacent = (r1, r2) =>
+      (r2.x === r1.x && Math.abs(r2.y - r1.y) === 1) ||
+      (r2.y === r1.y && Math.abs(r2.x - r1.x) === 1);
+
+    const adjacentCount = data.filter((r1) =>
+      data.some((r2) => isAdjacent(r1, r2))
+    ).length;
+
+    if (adjacentCount < threshold) continue;
 
     let output = "";
     for (let y = 0; y < maxy; y++) {
@@ -22,10 +30,10 @@ async function part2(data, maxx = 101, maxy = 103) {
       output += "\n";
     }
 
-    output += `i = ${i}\n`;
+    output += `\ni = ${i}\nPress return (or ctrl+c to quit)...\n`;
     process.stdout.write("\x1b[2J\x1b[H");
     process.stdout.write(output);
-    await new Promise(res => process.stdin.once("data", res));
+    await new Promise((res) => process.stdin.once("data", res));
   }
 
   return 1;
