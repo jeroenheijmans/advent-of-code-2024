@@ -80,7 +80,7 @@ function part1({ maze, instructions }) {
     .reduce((a, b) => a + b, 0);
 }
 
-function part2({maze, instructions}) {
+function part2({ maze, instructions }) {
   const maxx = Math.max(...maze.map((p) => p.x)) * 2;
   const maxy = Math.max(...maze.map((p) => p.y));
 
@@ -94,7 +94,18 @@ function part2({maze, instructions}) {
 
   const boxes = maze.reduce((result, next) => {
     if (next.char === "O") {
-      const box = { x1: next.x * 2, x2: next.x * 2 + 1, y: next.y }
+      const x1 = next.x * 2;
+      const x2 = x1 + 1;
+      const y = next.y;
+      const box = {
+        x1,
+        x2,
+        y,
+        coords: [
+          { x: x1, y },
+          { x: x2, y },
+        ],
+      };
       result[getKey(box.x1, next.y)] = box;
       result[getKey(box.x2, next.y)] = box;
     }
@@ -107,9 +118,9 @@ function part2({maze, instructions}) {
 
   function drawMap(op) {
     console.log(`Move ${op}:`);
-    for (let drawY = 0; drawY <= maxy; drawY++) {
+    for (let drawY = 0; drawY <= maxy + 1; drawY++) {
       let line = "";
-      for (let drawX = 0; drawX <= maxx; drawX++) {
+      for (let drawX = 0; drawX <= maxx + 1; drawX++) {
         const key = getKey(drawX, drawY);
         if (x === drawX && y === drawY) line += "@";
         else if (walls[key]) line += "#";
@@ -122,13 +133,78 @@ function part2({maze, instructions}) {
     console.log();
   }
 
+  function canPushOn(coords, dir, considered = new Set()) {
+    return coords.every(({ x, y }) => {
+      const key = getKey(x + dir.dx, y + dir.dy);
+      if (walls[key]) return false;
+      const box = boxes[key];
+      if (box && !considered.has(box)) {
+        considered.add(box);
+        return canPushOn(box.coords, dir, considered);
+      }
+      return true;
+    });
+  }
+
+  function pushOn({ x, y }, dir) {
+    const pushedBoxesSet = new Set();
+
+    function buildPushedBoxesSetFrom(coords) {
+      coords
+        .map((point) => boxes[getKey(point.x, point.y)])
+        .filter((b) => !!b)
+        .filter((b) => !pushedBoxesSet.has(b))
+        .forEach((b) => {
+          pushedBoxesSet.add(b);
+          buildPushedBoxesSetFrom(
+            b.coords.map((p) => ({ x: p.x + dir.dx, y: p.y + dir.dy }))
+          );
+        });
+    }
+
+    buildPushedBoxesSetFrom([{ x, y }]);
+
+    const list = [...pushedBoxesSet];
+
+    list.forEach((box) => {
+      delete boxes[getKey(box.x1, box.y)];
+      delete boxes[getKey(box.x2, box.y)];
+      box.x1 += dir.dx;
+      box.x2 += dir.dx;
+      box.y += dir.dy;
+      box.coords = [
+        { x: box.x1, y: box.y },
+        { x: box.x2, y: box.y },
+      ];
+    });
+
+    list.forEach((box) => {
+      boxes[getKey(box.x1, box.y)] = box;
+      boxes[getKey(box.x2, box.y)] = box;
+    });
+  }
+
   for (const op of instructions) {
     const dir = dirs[op];
 
-    drawMap(op);
+    if (walls[getKey(x + dir.dx, y + dir.dy)]) {
+      continue;
+    }
+
+    if (canPushOn([{ x, y }], dir)) {
+      x = x + dir.dx;
+      y = y + dir.dy;
+      pushOn({ x, y }, dir);
+    }
+
+    // drawMap(op);
   }
 
-  return 0;
+  return (
+    Object.values(boxes)
+      .map((p) => 100 * p.y + p.x1)
+      .reduce((a, b) => a + b, 0) / 2
+  );
 }
 
 function parseInput(input) {
@@ -189,23 +265,23 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example - small)", () => {
-  //   const result = part1(parseInput(exampleSmall));
-  //   console.log(`Day ${day}, part 1 (example - small):`, result);
-  //   expect(result).toBe(2028);
-  // });
+  it("should solve part 1 (example - small)", () => {
+    const result = part1(parseInput(exampleSmall));
+    console.log(`Day ${day}, part 1 (example - small):`, result);
+    expect(result).toBe(2028);
+  });
 
-  // it("should solve part 1 (example - big)", () => {
-  //   const result = part1(parseInput(exampleBig));
-  //   console.log(`Day ${day}, part 1 (example - big):`, result);
-  //   expect(result).toBe(10092);
-  // });
+  it("should solve part 1 (example - big)", () => {
+    const result = part1(parseInput(exampleBig));
+    console.log(`Day ${day}, part 1 (example - big):`, result);
+    expect(result).toBe(10092);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(1563092);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(1563092);
+  });
 
   it("should solve part 2 (example - big)", () => {
     const result = part2(parseInput(exampleBig));
@@ -213,9 +289,9 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
     expect(result).toBe(9021);
   });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(1582688);
+  });
 });
