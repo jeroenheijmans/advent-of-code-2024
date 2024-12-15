@@ -4,6 +4,13 @@ const day = "15";
 
 const getKey = (x, y) => `${x};${y}`;
 
+const dirs = {
+  "<": { dx: -1, dy: 0 },
+  v: { dx: 0, dy: +1 },
+  ">": { dx: +1, dy: 0 },
+  "^": { dx: 0, dy: -1 },
+};
+
 function part1({ maze, instructions }) {
   const maxx = Math.max(...maze.map((p) => p.x));
   const maxy = Math.max(...maze.map((p) => p.y));
@@ -16,13 +23,6 @@ function part1({ maze, instructions }) {
   const robot = maze.find((p) => p.char === "@");
   let { x, y } = robot;
   robot.char = ".";
-
-  const dirs = {
-    "<": { dx: -1, dy: 0 },
-    v: { dx: 0, dy: +1 },
-    ">": { dx: +1, dy: 0 },
-    "^": { dx: 0, dy: -1 },
-  };
 
   function drawMap(op) {
     console.log(`Move ${op}:`);
@@ -80,8 +80,55 @@ function part1({ maze, instructions }) {
     .reduce((a, b) => a + b, 0);
 }
 
-function part2(data) {
-  return data.length;
+function part2({maze, instructions}) {
+  const maxx = Math.max(...maze.map((p) => p.x)) * 2;
+  const maxy = Math.max(...maze.map((p) => p.y));
+
+  const walls = maze.reduce((result, next) => {
+    if (next.char === "#") {
+      result[getKey(next.x * 2, next.y)] = { x: next.x * 2, y: next.y };
+      result[getKey(next.x * 2 + 1, next.y)] = { x: next.x * 2 + 1, y: next.y };
+    }
+    return result;
+  }, {});
+
+  const boxes = maze.reduce((result, next) => {
+    if (next.char === "O") {
+      const box = { x1: next.x * 2, x2: next.x * 2 + 1, y: next.y }
+      result[getKey(box.x1, next.y)] = box;
+      result[getKey(box.x2, next.y)] = box;
+    }
+    return result;
+  }, {});
+
+  const robot = maze.find((p) => p.char === "@");
+  let x = 2 * robot.x;
+  let y = robot.y;
+
+  function drawMap(op) {
+    console.log(`Move ${op}:`);
+    for (let drawY = 0; drawY <= maxy; drawY++) {
+      let line = "";
+      for (let drawX = 0; drawX <= maxx; drawX++) {
+        const key = getKey(drawX, drawY);
+        if (x === drawX && y === drawY) line += "@";
+        else if (walls[key]) line += "#";
+        else if (boxes[key]?.x1 === drawX) line += "[";
+        else if (boxes[key]?.x2 === drawX) line += "]";
+        else line += ".";
+      }
+      console.log(line);
+    }
+    console.log();
+  }
+
+  for (const op of instructions) {
+    const dir = dirs[op];
+
+    drawMap(op);
+  }
+
+  return 0;
 }
 
 function parseInput(input) {
@@ -142,29 +189,29 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example - small)", () => {
-    const result = part1(parseInput(exampleSmall));
-    console.log(`Day ${day}, part 1 (example - small):`, result);
-    expect(result).toBe(2028);
-  });
-
-  it("should solve part 1 (example - big)", () => {
-    const result = part1(parseInput(exampleBig));
-    console.log(`Day ${day}, part 1 (example - big):`, result);
-    expect(result).toBe(10092);
-  });
-
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(1563092);
-  });
-
-  // it("should solve part 2 (example)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
+  // it("should solve part 1 (example - small)", () => {
+  //   const result = part1(parseInput(exampleSmall));
+  //   console.log(`Day ${day}, part 1 (example - small):`, result);
+  //   expect(result).toBe(2028);
   // });
+
+  // it("should solve part 1 (example - big)", () => {
+  //   const result = part1(parseInput(exampleBig));
+  //   console.log(`Day ${day}, part 1 (example - big):`, result);
+  //   expect(result).toBe(10092);
+  // });
+
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).toBe(1563092);
+  // });
+
+  it("should solve part 2 (example - big)", () => {
+    const result = part2(parseInput(exampleBig));
+    console.log(`Day ${day}, part 2 (example - big):`, result);
+    expect(result).toBe(9021);
+  });
 
   // it("should solve part 2", () => {
   //   const result = part2(parseInput(input));
