@@ -3,6 +3,9 @@ import { describe, it, expect } from "bun:test";
 const day = "13";
 
 function part1(data) {
+  // Technically it would be faster to call "part2" here, but
+  // for fun let's leave the dumb imperative solution up here.
+
   function findLowestCostFor(machine) {
     const { prize, buttonA, buttonB } = machine;
     for (let a = 0; a < 100; a++) {
@@ -16,11 +19,7 @@ function part1(data) {
     return 0;
   }
 
-  let result = 0;
-  for (const machine of data) {
-    result += findLowestCostFor(machine);
-  }
-  return result;
+  return data.reduce((acc, m) => acc + findLowestCostFor(m), 0);
 }
 
 function part2(data) {
@@ -29,31 +28,30 @@ function part2(data) {
   function findLowestCostFor(machine) {
     const { prize, buttonA, buttonB } = machine;
 
-    const part1 = (prize.y / buttonA.y) - (prize.x / buttonA.x);
-    const part2 = (buttonB.y / buttonA.y) - (buttonB.x / buttonA.x);
+    // From the pen & paper solution, two parts in my equation:
+    const part1 = prize.y / buttonA.y - prize.x / buttonA.x;
+    const part2 = buttonB.y / buttonA.y - buttonB.x / buttonA.x;
 
+    // Solve 'b' first as the cheapest one:
     const b = part1 / part2;
+
+    // Work backwards to also solve 'a':
     const a = (prize.x - b * buttonB.x) / buttonA.x;
 
-    console.log(`Button A: ${JSON.stringify(buttonA)} ==> ${a}`);
-    console.log(`Button B: ${JSON.stringify(buttonB)} ==> ${b}`);
-    console.log(`Prize: ${JSON.stringify(prize)}`);
-    console.log();
+    // console.log(`Button A: ${JSON.stringify(buttonA)} ==> ${a}`);
+    // console.log(`Button B: ${JSON.stringify(buttonB)} ==> ${b}`);
+    // console.log(`Prize: ${JSON.stringify(prize)}`);
+    // console.log();
 
-    const da = Math.abs(Math.round(a) - a);
-    const db = Math.abs(Math.round(b) - b);
+    const aDiff = Math.abs(Math.round(a) - a);
+    const bDiff = Math.abs(Math.round(b) - b);
 
-    if (da < epsilon && db < epsilon) return b + 3 * a;
+    if (aDiff < epsilon && bDiff < epsilon) return b + 3 * a;
 
     return 0;
   }
 
-  let result = 0, i = 1;
-  for (const machine of data) {
-    if (i++ % 10 === 0) console.log("Machine...", i);
-    result += findLowestCostFor(machine);
-  }
-  return result;
+  return data.reduce((acc, m) => acc + findLowestCostFor(m), 0);
 }
 
 function parseInput(input) {
@@ -98,23 +96,23 @@ Prize: X=18641, Y=10279
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example)", () => { 
-  //   const result = part1(parseInput(example1));
-  //   console.log(`Day ${day}, part 1 (example):`, result);
-  //   expect(result).toBe(480);
-  // });
+  it("should solve part 1 (example)", () => {
+    const result = part1(parseInput(example1));
+    console.log(`Day ${day}, part 1 (example):`, result);
+    expect(result).toBe(480);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(35729);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(35729);
+  });
 
-  it("should solve part 2 (example)", () => { 
+  it("should solve part 2 (example)", () => {
     const result = part2(parseInput(example1));
     console.log(`Day ${day}, part 2 (example):`, result);
     expect(result).toBe(480);
-  }); 
+  });
 
   it("should solve part 2 (with part 1 data)", () => {
     const result = part2(parseInput(input));
@@ -123,16 +121,16 @@ Prize: X=18641, Y=10279
   });
 
   it("should solve part 2", () => {
-    const part2Input = parseInput(input).map(machine => ({
+    const part2Input = parseInput(input).map((machine) => ({
       ...machine,
       prize: {
         x: machine.prize.x + 10000000000000,
         y: machine.prize.y + 10000000000000,
-      }
+      },
     }));
     const result = part2(part2Input);
     console.log(`Day ${day}, part 2:`, result);
     expect(result).toBeGreaterThan(46976148799239);
-    expect(result).toBe(0);
+    expect(result).toBe(88584689879723);
   });
 });
