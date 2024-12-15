@@ -24,7 +24,7 @@ function part1(data) {
 }
 
 function part2(data) {
-  const epsilon = 0.00001;
+  const epsilon = 0.001;
 
   function findLowestCostFor(machine) {
     const { prize, buttonA, buttonB } = machine;
@@ -132,6 +132,7 @@ Prize: X=18641, Y=10279
     }));
     const result = part2(part2Input);
     console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBeGreaterThan(46976148799239);
     expect(result).toBe(0);
   });
 });
