@@ -24,29 +24,27 @@ function part1(data) {
 }
 
 function part2(data) {
+  const epsilon = 0.00001;
+
   function findLowestCostFor(machine) {
     const { prize, buttonA, buttonB } = machine;
 
-    const maxA = 1e8;
+    const part1 = (prize.y / buttonA.y) - (prize.x / buttonA.x);
+    const part2 = (buttonB.y / buttonA.y) - (buttonB.x / buttonA.x);
 
-    for (let a = 0; a <= maxA; a++) {
-      const x1 = buttonA.x * a;
+    const b = part1 / part2;
+    const a = (prize.x - b * buttonB.x) / buttonA.x;
 
-      if (x1 > prize.x) break;
+    console.log(`Button A: ${JSON.stringify(buttonA)} ==> ${a}`);
+    console.log(`Button B: ${JSON.stringify(buttonB)} ==> ${b}`);
+    console.log(`Prize: ${JSON.stringify(prize)}`);
+    console.log();
 
-      const x2 = prize.x - x1;
-      const bForX = x2 / buttonB.x;
+    const da = Math.abs(Math.round(a) - a);
+    const db = Math.abs(Math.round(b) - b);
 
-      if (!Number.isInteger(bForX)) continue;
-      
-      const y1 = buttonA.y * a;
-      const y2 = prize.y - y1;
-      const bForY = y2 / buttonB.y;
+    if (da < epsilon && db < epsilon) return b + 3 * a;
 
-      if (bForX === bForY) {
-        return bForX + 3 * a;
-      }
-    }
     return 0;
   }
 
@@ -112,17 +110,17 @@ Prize: X=18641, Y=10279
   //   expect(result).toBe(35729);
   // });
 
-  // it("should solve part 2 (example)", () => { 
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(480);
-  // }); 
+  it("should solve part 2 (example)", () => { 
+    const result = part2(parseInput(example1));
+    console.log(`Day ${day}, part 2 (example):`, result);
+    expect(result).toBe(480);
+  }); 
 
-  // it("should solve part 2 (with part 1 data)", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2 (with part 1 data):`, result);
-  //   expect(result).toBe(35729);
-  // });
+  it("should solve part 2 (with part 1 data)", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2 (with part 1 data):`, result);
+    expect(result).toBe(35729);
+  });
 
   it("should solve part 2", () => {
     const part2Input = parseInput(input).map(machine => ({
