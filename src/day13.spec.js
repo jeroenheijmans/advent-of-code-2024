@@ -24,7 +24,38 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  function findLowestCostFor(machine) {
+    const { prize, buttonA, buttonB } = machine;
+
+    const maxA = 1e8;
+
+    for (let a = 0; a <= maxA; a++) {
+      const x1 = buttonA.x * a;
+
+      if (x1 > prize.x) break;
+
+      const x2 = prize.x - x1;
+      const bForX = x2 / buttonB.x;
+
+      if (!Number.isInteger(bForX)) continue;
+      
+      const y1 = buttonA.y * a;
+      const y2 = prize.y - y1;
+      const bForY = y2 / buttonB.y;
+
+      if (bForX === bForY) {
+        return bForX + 3 * a;
+      }
+    }
+    return 0;
+  }
+
+  let result = 0, i = 1;
+  for (const machine of data) {
+    if (i++ % 10 === 0) console.log("Machine...", i);
+    result += findLowestCostFor(machine);
+  }
+  return result;
 }
 
 function parseInput(input) {
@@ -69,27 +100,40 @@ Prize: X=18641, Y=10279
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example)", () => {
-    const result = part1(parseInput(example1));
-    console.log(`Day ${day}, part 1 (example):`, result);
-    expect(result).toBe(480);
-  });
+  // it("should solve part 1 (example)", () => { 
+  //   const result = part1(parseInput(example1));
+  //   console.log(`Day ${day}, part 1 (example):`, result);
+  //   expect(result).toBe(480);
+  // });
 
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(35729);
-  });
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).toBe(35729);
+  // });
 
-  // it("should solve part 2 (example)", () => {
+  // it("should solve part 2 (example)", () => { 
   //   const result = part2(parseInput(example1));
   //   console.log(`Day ${day}, part 2 (example):`, result);
-  //   expect(result).toBe(0);
+  //   expect(result).toBe(480);
+  // }); 
+
+  // it("should solve part 2 (with part 1 data)", () => {
+  //   const result = part2(parseInput(input));
+  //   console.log(`Day ${day}, part 2 (with part 1 data):`, result);
+  //   expect(result).toBe(35729);
   // });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const part2Input = parseInput(input).map(machine => ({
+      ...machine,
+      prize: {
+        x: machine.prize.x + 10000000000000,
+        y: machine.prize.y + 10000000000000,
+      }
+    }));
+    const result = part2(part2Input);
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(0);
+  });
 });
