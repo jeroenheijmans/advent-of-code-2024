@@ -80,12 +80,12 @@ function part1(data) {
   // });
 
   function findCheapestPath() {
-    let dir = dirs.find(d => d.key === "east");
+    let dir = dirs.find((d) => d.key === "east");
     let edges = [{ target: start, dir, cost: 0 }];
     const seen = new Set();
     while (edges.length > 0) {
       let newEdges = [];
-      const cheapestCost = Math.min(...edges.map(e => e.cost));
+      const cheapestCost = Math.min(...edges.map((e) => e.cost));
 
       // console.log("Considering cheapest cost", cheapestCost);
       // console.log(edges);
@@ -104,18 +104,21 @@ function part1(data) {
         seen.add(key);
 
         // Continue in current direction
-        const simpleNextStep = edge.target.links.find(l => l.dir === edge.dir);
+        const simpleNextStep = edge.target.links.find(
+          (l) => l.dir === edge.dir
+        );
         if (simpleNextStep) {
           newEdges.push({
             target: simpleNextStep.target,
             cost: edge.cost + simpleNextStep.weight,
-            dir: edge.dir
+            dir: edge.dir,
           });
         }
 
         // Steps that require 90deg turn
-        edge.target.links.filter(l => l !== simpleNextStep && l.target !== edge.target)
-          .forEach(step => {
+        edge.target.links
+          .filter((l) => l !== simpleNextStep && l.target !== edge.target)
+          .forEach((step) => {
             // console.log("Turning at", key, "towards", step.target.key)
             newEdges.push({
               target: step.target,
@@ -185,9 +188,9 @@ function part2(data) {
         coords: new Set(),
       },
     ];
-    left.links.forEach(foo => {
+    left.links.forEach((foo) => {
       foo.coords.add(next.key);
-      next.links.forEach(l => l.coords.forEach(c => foo.coords.add(c)));
+      next.links.forEach((l) => l.coords.forEach((c) => foo.coords.add(c)));
     });
 
     right.links = [
@@ -199,24 +202,69 @@ function part2(data) {
         coords: new Set(),
       },
     ];
-    right.links.forEach(foo => {
+    right.links.forEach((foo) => {
       foo.coords.add(next.key);
-      next.links.forEach(l => l.coords.forEach(c => foo.coords.add(c)));
+      next.links.forEach((l) => l.coords.forEach((c) => foo.coords.add(c)));
     });
     delete maze[next.key];
   } while ((next = findFoldable()));
 
+  // https://mermaid.live/
+  // console.log("flowchart TD");
+  // Object.values(maze).forEach((p) => {
+  //   p.links.forEach((l) => {
+  //     console.log(`  ${p.label} --> |${l.weight}| ${l.target.label}`);
+  //   });
+  // });
+
+  function print(coords) {
+    const maxx = [...coords]
+      .map((c) => parseInt(c.split(";")[0]))
+      .reduce((a, b) => Math.max(a, b), 0);
+    const maxy = [...coords]
+      .map((c) => parseInt(c.split(";")[1]))
+      .reduce((a, b) => Math.max(a, b), 0);
+    for (let y = 0; y <= maxy + 1; y++) {
+      let line = "";
+      for (let x = 0; x <= maxx + 1; x++) {
+        line += coords.has(`${x};${y}`) ? "O" : ".";
+      }
+      console.log(line);
+    }
+    console.log();
+  }
+
+  function isOpposite(a, b) {
+    if (a.key === "east") return b.key === "west";
+    if (a.key === "west") return b.key === "east";
+    if (a.key === "north") return b.key === "south";
+    if (a.key === "south") return b.key === "north";
+    throw "Unknown dirs";
+  }
+
   function findCheapestPath() {
-    let dir = dirs.find(d => d.key === "east");
+    let dir = dirs.find((d) => d.key === "east");
     let edges = [{ target: start, dir, cost: 0, visitedLinks: new Set() }];
     const seen = new Set();
     const bestRoutes = new Set();
     let optimalCost = Infinity;
+    let i = 0;
     while (edges.length > 0) {
+      i++;
       let newEdges = [];
-      const cheapestCost = Math.min(...edges.map(e => e.cost));
+      const cheapestCost = Math.min(...edges.map((e) => e.cost));
+
+      // console.log("\n" + i);
 
       for (const edge of edges) {
+        // console.log(
+        //   edge.cost.toString().padStart(5, " "),
+        //   "=> " + start.key + " -",
+        //   [...edge.visitedLinks]
+        //     .map((v) => v.target.key)
+        //     .reverse()
+        //     .join(" - ")
+        // );
         if (edge.cost > optimalCost) {
           continue;
         }
@@ -227,17 +275,26 @@ function part2(data) {
         }
 
         if (edge.target === finish) {
+          // console.log(edges.map((e) => `${e.target.key} cost ${e.cost}`));
           optimalCost = edge.cost;
-          edge.visitedLinks.forEach(v => v.coords.forEach(c => bestRoutes.add(c)));
+          console.log(edge.cost);
+          print(
+            new Set([...edge.visitedLinks].map((v) => [...v.coords]).flat())
+          );
+          edge.visitedLinks.forEach((v) =>
+            v.coords.forEach((c) => bestRoutes.add(c))
+          );
         }
 
-        const key = edge.target.key;
+        const key = `${edge.target.key}+${edge.dir.key}`;
+        // console.log(" ".repeat(i) + "Checking", key, "at cost", edge.cost, "seen = ", seen.has(key));
         if (seen.has(key)) continue;
-
         seen.add(key);
 
         // Continue in current direction
-        const linkThatIsStraightOn = edge.target.links.find(l => l.dir === edge.dir);
+        const linkThatIsStraightOn = edge.target.links.find(
+          (l) => l.dir === edge.dir
+        );
         if (linkThatIsStraightOn) {
           newEdges.push({
             target: linkThatIsStraightOn.target,
@@ -248,8 +305,14 @@ function part2(data) {
         }
 
         // Steps that require 90deg turn
-        edge.target.links.filter(l => l !== linkThatIsStraightOn && l.target !== edge.target)
-          .forEach(link => {
+        edge.target.links
+          .filter(
+            (l) =>
+              l !== linkThatIsStraightOn &&
+              l.target !== edge.target &&
+              !isOpposite(edge.dir, l.dir)
+          )
+          .forEach((link) => {
             newEdges.push({
               target: link.target,
               cost: edge.cost + link.weight + 1000,
@@ -260,17 +323,11 @@ function part2(data) {
       }
       edges = newEdges;
     }
-    
+
+    if (optimalCost === Infinity) throw "No solution found";
+
     bestRoutes.add(start.key);
     bestRoutes.add(finish.key);
-
-    for (let y = 0; y < 20; y++) {
-      let line = "";
-      for (let x = 0; x < 20; x++) {
-        line += bestRoutes.has(`${x};${y}`) ? "O" : ".";
-      }
-      console.log(line);
-    }
 
     return bestRoutes.size;
   }
@@ -315,6 +372,16 @@ describe(`day${day}`, async () => {
 #.#..#
 #...##
 ######
+  `;
+
+  const exampleSimple3 = `
+########
+#.....E#
+##.#.###
+##.#.###
+#....###
+#S######
+########
   `;
 
   const example1 = `
@@ -393,17 +460,23 @@ describe(`day${day}`, async () => {
   //   expect(result).toBe(14);
   // });
 
-  // it("should solve part 2 (example 1)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example 1):`, result);
-  //   expect(result).toBe(45);
+  // it("should solve part 2 (example, simplified 003)", () => {
+  //   const result = part2(parseInput(exampleSimple3));
+  //   console.log(`Day ${day}, part 2 (example, simplified 003):`, result);
+  //   expect(result).toBe(14);
   // });
 
-  it("should solve part 2 (example 2)", () => {
-    const result = part2(parseInput(example2));
-    console.log(`Day ${day}, part 2 (example 2):`, result);
-    expect(result).toBe(64);
+  it("should solve part 2 (example 1)", () => {
+    const result = part2(parseInput(example1));
+    console.log(`Day ${day}, part 2 (example 1):`, result);
+    expect(result).toBe(45);
   });
+
+  // it("should solve part 2 (example 2)", () => {
+  //   const result = part2(parseInput(example2));
+  //   console.log(`Day ${day}, part 2 (example 2):`, result);
+  //   expect(result).toBe(64);
+  // });
 
   // it("should solve part 2", () => {
   //   const result = part2(parseInput(input));
