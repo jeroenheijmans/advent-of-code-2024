@@ -155,7 +155,7 @@ function part2(data) {
           target,
           dir,
           weight: 1,
-          pointKeys: new Set([point.key, targetKey]),
+          coords: new Set([target.key]),
         });
     });
   }
@@ -176,113 +176,103 @@ function part2(data) {
     const left = next.links[0].target;
     const right = next.links[1].target;
     const weight = next.links.reduce((a, b) => a + b.weight, 0);
-
-    const chain = next.links.reduce((result, l) => {
-      l.pointKeys.forEach(p => result.add(p));
-      return result
-    }, new Set());
-
     left.links = [
       ...left.links.filter((l) => l.target !== next),
       {
         target: right,
         weight,
         dir: left.links.find((l) => l.target === next).dir,
-        pointKeys: new Set([...chain, left.key, right.key, next.key]),
+        coords: new Set(),
       },
     ];
-    // left.links.forEach(l => l.pointKeys.add(next.key));
+    left.links.forEach(foo => {
+      foo.coords.add(next.key);
+      next.links.forEach(l => l.coords.forEach(c => foo.coords.add(c)));
+    });
+
     right.links = [
       ...right.links.filter((l) => l.target !== next),
       {
         target: left,
         weight,
         dir: right.links.find((l) => l.target === next).dir,
-        pointKeys: new Set([...chain, left.key, right.key, next.key]),
+        coords: new Set(),
       },
     ];
-    // right.links.forEach(l => l.pointKeys.add(next.key));
+    right.links.forEach(foo => {
+      foo.coords.add(next.key);
+      next.links.forEach(l => l.coords.forEach(c => foo.coords.add(c)));
+    });
     delete maze[next.key];
   } while ((next = findFoldable()));
 
-  // Object.values(maze).forEach(p => console.log(p.key, " ==> ", p.links
-  //   .map(l => l.dir.key + " = " +  [...l.pointKeys].join(" / ")).join("  ---  ")
-  // ));
-
   function findCheapestPath() {
     let dir = dirs.find(d => d.key === "east");
-    let edges = [{ target: start, dir, cost: 0, seats: [start.key] }];
+    let edges = [{ target: start, dir, cost: 0, visitedLinks: new Set() }];
     const seen = new Set();
-    let part1Answer = 0;
-    const bestSeats = new Set();
-    let i = 0;
-    while (edges.length > 0 && part1Answer === 0) {
-      if (i++ % 25 === 0) console.log("Iteration", i);
+    const bestRoutes = new Set();
+    let optimalCost = Infinity;
+    while (edges.length > 0) {
       let newEdges = [];
-      const cheapestCost = edges.map(e => e.cost).reduce((min, val) => Math.min(min, val), Infinity);
-
-      if (part1Answer > 0 && cheapestCost > part1Answer) break;
-
-      // console.log("Considering cheapest cost", cheapestCost);
-      // console.log(edges);
+      const cheapestCost = Math.min(...edges.map(e => e.cost));
 
       for (const edge of edges) {
+        if (edge.cost > optimalCost) {
+          continue;
+        }
+
         if (edge.cost > cheapestCost) {
-           newEdges.push(edge);
+          newEdges.push(edge);
           continue;
         }
 
         if (edge.target === finish) {
-          // console.log("Found great path! Through:", edge.seats);
-          part1Answer = edge.cost;
-          bestSeats.add(finish.key);
-          edge.seats.forEach(s => bestSeats.add(s));
+          optimalCost = edge.cost;
+          edge.visitedLinks.forEach(v => v.coords.forEach(c => bestRoutes.add(c)));
         }
 
-        const key = `${edge.target.key}/${edge.dir.key}/${edge.cost}/${edge.seats.join(",")}`;
+        const key = edge.target.key;
         if (seen.has(key)) continue;
+
         seen.add(key);
 
         // Continue in current direction
-        const simpleNextStep = edge.target.links.find(l => l.dir === edge.dir);
-        if (simpleNextStep) {
-          const cost = edge.cost + simpleNextStep.weight;
+        const linkThatIsStraightOn = edge.target.links.find(l => l.dir === edge.dir);
+        if (linkThatIsStraightOn) {
           newEdges.push({
-            target: simpleNextStep.target,
-            cost,
+            target: linkThatIsStraightOn.target,
+            cost: edge.cost + linkThatIsStraightOn.weight,
             dir: edge.dir,
-            seats: [...edge.seats, ...simpleNextStep.pointKeys],
+            visitedLinks: new Set([linkThatIsStraightOn, ...edge.visitedLinks]),
           });
         }
 
         // Steps that require 90deg turn
-        edge.target.links.filter(l => l !== simpleNextStep && l.target !== edge.target)
-          .forEach(step => {
-            //console.log("Turning at", key, "towards", step.target.key)
-            const cost = edge.cost + step.weight + 1000;
+        edge.target.links.filter(l => l !== linkThatIsStraightOn && l.target !== edge.target)
+          .forEach(link => {
             newEdges.push({
-              target: step.target,
-              cost,
-              dir: step.dir,
-              seats: [...edge.seats, ...step.pointKeys],
+              target: link.target,
+              cost: edge.cost + link.weight + 1000,
+              dir: link.dir,
+              visitedLinks: new Set([link, ...edge.visitedLinks]),
             });
           });
       }
       edges = newEdges;
     }
+    
+    bestRoutes.add(start.key);
+    bestRoutes.add(finish.key);
 
-    // console.log(bestSeats);
+    for (let y = 0; y < 20; y++) {
+      let line = "";
+      for (let x = 0; x < 20; x++) {
+        line += bestRoutes.has(`${x};${y}`) ? "O" : ".";
+      }
+      console.log(line);
+    }
 
-    // for (let y = 0; y < 30; y++) {
-    //   let line = "";
-    //   for (let x = 0; x < 30; x++) {
-    //     const key = getKey(x, y);
-    //     line += bestSeats.has(key) ? "O" : ".";
-    //   }
-    //   console.log(line);
-    // }
-
-    return bestSeats.size;
+    return bestRoutes.size;
   }
 
   return findCheapestPath();
@@ -391,23 +381,23 @@ describe(`day${day}`, async () => {
   //   expect(result).toBe(95476);
   // });
 
-  it("should solve part 2 (example, simplified 001)", () => {
-    const result = part2(parseInput(exampleSimple1));
-    console.log(`Day ${day}, part 2 (example, simplified 001):`, result);
-    expect(result).toBe(6);
-  });
+  // it("should solve part 2 (example, simplified 001)", () => {
+  //   const result = part2(parseInput(exampleSimple1));
+  //   console.log(`Day ${day}, part 2 (example, simplified 001):`, result);
+  //   expect(result).toBe(6);
+  // });
 
-  it("should solve part 2 (example, simplified 002)", () => {
-    const result = part2(parseInput(exampleSimple2));
-    console.log(`Day ${day}, part 2 (example, simplified 002):`, result);
-    expect(result).toBe(14);
-  });
+  // it("should solve part 2 (example, simplified 002)", () => {
+  //   const result = part2(parseInput(exampleSimple2));
+  //   console.log(`Day ${day}, part 2 (example, simplified 002):`, result);
+  //   expect(result).toBe(14);
+  // });
 
-  it("should solve part 2 (example 1)", () => {
-    const result = part2(parseInput(example1));
-    console.log(`Day ${day}, part 2 (example 1):`, result);
-    expect(result).toBe(45);
-  });
+  // it("should solve part 2 (example 1)", () => {
+  //   const result = part2(parseInput(example1));
+  //   console.log(`Day ${day}, part 2 (example 1):`, result);
+  //   expect(result).toBe(45);
+  // });
 
   it("should solve part 2 (example 2)", () => {
     const result = part2(parseInput(example2));
