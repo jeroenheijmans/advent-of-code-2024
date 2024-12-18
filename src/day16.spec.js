@@ -217,18 +217,23 @@ function part2(data) {
   //   });
   // });
 
-  function print(data) {
-    const coords = new Set(data);
+  function print(results) {
+    const coords = new Set(results);
     const maxx = [...coords]
       .map((c) => parseInt(c.split(";")[0]))
       .reduce((a, b) => Math.max(a, b), 0);
     const maxy = [...coords]
       .map((c) => parseInt(c.split(";")[1]))
       .reduce((a, b) => Math.max(a, b), 0);
-    for (let y = 0; y <= maxy + 1; y++) {
-      let line = "";
+    
+    for (let y = -1; y <= maxy + 1; y++) {
+      let line = y === -1 ? "     " :  "";
       for (let x = 0; x <= maxx + 1; x++) {
-        line += coords.has(`${x};${y}`) ? "O" : ".";
+        if (y === -1) { line += x.toString().at(-1); continue; }
+        if (x === 0) line += y.toString().padStart(4, " ") + " ";
+        const altChar = data.find(p => p.x === x && p.y === y)?.char || "█";
+        const mainChar = start.key === `${x};${y}` ? "x" : finish.key === `${x};${y}` ? "x" : "O"
+        line += coords.has(`${x};${y}`) ? mainChar : altChar;
       }
       console.log(line);
     }
