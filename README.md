@@ -33,10 +33,10 @@ Here's what I learned (or noticed) each day.
 10. If you understand the lesson, stop here; otherwise, see lesson 10.
 11. You've got to memoize important things!
 12. Take a bit of luck if you can catch it.
-13. TODO
+13. Listen to your Math teacher, kids!
 14. Don't solve part 2 until you know what part 2 is.
 15. Always check input and output carefully.
-16. TODO
+16. Persistence is a virtue and a curse, sometimes.
 17. TODO
 18. TODO
 19. TODO
