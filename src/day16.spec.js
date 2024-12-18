@@ -87,9 +87,6 @@ function part1(data) {
       let newEdges = [];
       const cheapestCost = Math.min(...edges.map((e) => e.cost));
 
-      // console.log("Considering cheapest cost", cheapestCost);
-      // console.log(edges);
-
       for (const edge of edges) {
         if (edge.cost > cheapestCost) {
           newEdges.push(edge);
@@ -119,7 +116,6 @@ function part1(data) {
         edge.target.links
           .filter((l) => l !== simpleNextStep && l.target !== edge.target)
           .forEach((step) => {
-            // console.log("Turning at", key, "towards", step.target.key)
             newEdges.push({
               target: step.target,
               cost: edge.cost + step.weight + 1000,
@@ -248,11 +244,6 @@ function part2(data) {
     console.log();
   }
 
-  // Object.values(maze).forEach(p => p.links.forEach(l => {
-  //   console.log("From", p.key, "to", l.target.key);
-  //   print([...l.coords])
-  // }));
-
   function isOpposite(a, b) {
     if (a.key === "east") return b.key === "west";
     if (a.key === "west") return b.key === "east";
@@ -278,17 +269,7 @@ function part2(data) {
       const cheapestCost = edges.reduce((a, b) => Math.min(a, b.cost), Infinity);
       const seenExtras = [];
 
-      // console.log(i, " (nr of edges:", edges.length, ")");
-
       for (const edge of edges) {
-        // console.log(
-        //   edge.cost.toString().padStart(5, " "),
-        //   "=> " + start.key + " -",
-        //   [...edge.visitedLinks]
-        //     .map((v) => v.target.key)
-        //     .reverse()
-        //     .join(" - ")
-        // );
         if (edge.cost > optimalCost) {
           continue;
         }
@@ -299,8 +280,6 @@ function part2(data) {
         }
 
         if (edge.target === finish) {
-          // console.log(edges.map((e) => `${e.target.key} cost ${e.cost}`));
-          // [...edge.visitedLinks].forEach(v => console.log(`${v.target.key} (${v.weight})`, [...v.coords].toSorted().join(" - ")));
           optimalCost = edge.cost;
           // console.log(edge.cost);
           // print([...edge.visitedLinks].map((v) => [...v.coords]).flat());
@@ -449,29 +428,29 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example, simplified 001)", () => {
-  //   const result = part1(parseInput(exampleSimple1));
-  //   console.log(`Day ${day}, part 1 (example, simplified 001):`, result);
-  //   expect(result).toBe(2005);
-  // });
+  it("should solve part 1 (example, simplified 001)", () => {
+    const result = part1(parseInput(exampleSimple1));
+    console.log(`Day ${day}, part 1 (example, simplified 001):`, result);
+    expect(result).toBe(2005);
+  });
 
-  // it("should solve part 1 (example 1)", () => {
-  //   const result = part1(parseInput(example1));
-  //   console.log(`Day ${day}, part 1 (example 1):`, result);
-  //   expect(result).toBe(7036);
-  // });
+  it("should solve part 1 (example 1)", () => {
+    const result = part1(parseInput(example1));
+    console.log(`Day ${day}, part 1 (example 1):`, result);
+    expect(result).toBe(7036);
+  });
 
-  // it("should solve part 1 (example 2)", () => {
-  //   const result = part1(parseInput(example2));
-  //   console.log(`Day ${day}, part 1 (example 2):`, result);
-  //   expect(result).toBe(11048);
-  // });
+  it("should solve part 1 (example 2)", () => {
+    const result = part1(parseInput(example2));
+    console.log(`Day ${day}, part 1 (example 2):`, result);
+    expect(result).toBe(11048);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(95476);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(95476);
+  });
 
   it("should solve part 2 (example, simplified 001)", () => {
     const result = part2(parseInput(exampleSimple1));
