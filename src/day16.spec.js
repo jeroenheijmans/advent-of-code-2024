@@ -217,7 +217,8 @@ function part2(data) {
   //   });
   // });
 
-  function print(coords) {
+  function print(data) {
+    const coords = new Set(data);
     const maxx = [...coords]
       .map((c) => parseInt(c.split(";")[0]))
       .reduce((a, b) => Math.max(a, b), 0);
@@ -242,9 +243,13 @@ function part2(data) {
     throw "Unknown dirs";
   }
 
+  function edgeKey(target, dir) {
+    return `${target.key}+${dir.key}`;
+  }
+
   function findCheapestPath() {
     let dir = dirs.find((d) => d.key === "east");
-    let edges = [{ target: start, dir, cost: 0, visitedLinks: new Set() }];
+    let edges = [{ target: start, dir, cost: 0, visitedLinks: new Set(), key: edgeKey(start, dir) }];
     const seen = new Set();
     const bestRoutes = new Set();
     let optimalCost = Infinity;
@@ -276,20 +281,17 @@ function part2(data) {
 
         if (edge.target === finish) {
           // console.log(edges.map((e) => `${e.target.key} cost ${e.cost}`));
+          // [...edge.visitedLinks].forEach(v => console.log(`${v.target.key} (${v.weight})`, [...v.coords].toSorted().join(" - ")));
           optimalCost = edge.cost;
           console.log(edge.cost);
-          print(
-            new Set([...edge.visitedLinks].map((v) => [...v.coords]).flat())
-          );
+          print([...edge.visitedLinks].map((v) => [...v.coords]).flat());
           edge.visitedLinks.forEach((v) =>
             v.coords.forEach((c) => bestRoutes.add(c))
           );
         }
 
-        const key = `${edge.target.key}+${edge.dir.key}`;
-        // console.log(" ".repeat(i) + "Checking", key, "at cost", edge.cost, "seen = ", seen.has(key));
-        if (seen.has(key)) continue;
-        seen.add(key);
+        if (seen.has(edge.key)) continue;
+        seen.add(edge.key);
 
         // Continue in current direction
         const linkThatIsStraightOn = edge.target.links.find(
@@ -297,6 +299,7 @@ function part2(data) {
         );
         if (linkThatIsStraightOn) {
           newEdges.push({
+            key: edge.key + "--" + edgeKey(linkThatIsStraightOn.target, edge.dir),
             target: linkThatIsStraightOn.target,
             cost: edge.cost + linkThatIsStraightOn.weight,
             dir: edge.dir,
@@ -314,6 +317,7 @@ function part2(data) {
           )
           .forEach((link) => {
             newEdges.push({
+              key: edge.key + "--" + edgeKey(link.target, link.dir),
               target: link.target,
               cost: edge.cost + link.weight + 1000,
               dir: link.dir,
