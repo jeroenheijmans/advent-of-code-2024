@@ -137,6 +137,8 @@ function part1(data) {
 }
 
 function part2(data) {
+  const maxx = data.reduce((a,b) => Math.max(a, b.x), 0);
+  const maxy = data.reduce((a,b) => Math.max(a, b.y), 0);
   const start = data.find((p) => p.char === "S");
   const finish = data.find((p) => p.char === "E");
   const getLabel = (p) =>
@@ -179,19 +181,20 @@ function part2(data) {
     const left = next.links[0].target;
     const right = next.links[1].target;
     const weight = next.links.reduce((a, b) => a + b.weight, 0);
+
     left.links = [
       ...left.links.filter((l) => l.target !== next),
       {
         target: right,
         weight,
         dir: left.links.find((l) => l.target === next).dir,
-        coords: new Set(),
+        coords: new Set([
+          next.key,
+          ...next.links[0].coords,
+          ...next.links[1].coords,
+        ]),
       },
     ];
-    left.links.forEach((foo) => {
-      foo.coords.add(next.key);
-      next.links.forEach((l) => l.coords.forEach((c) => foo.coords.add(c)));
-    });
 
     right.links = [
       ...right.links.filter((l) => l.target !== next),
@@ -199,15 +202,26 @@ function part2(data) {
         target: left,
         weight,
         dir: right.links.find((l) => l.target === next).dir,
-        coords: new Set(),
+        coords: new Set([
+          next.key,
+          ...next.links[0].coords,
+          ...next.links[1].coords,
+        ]),
       },
     ];
-    right.links.forEach((foo) => {
-      foo.coords.add(next.key);
-      next.links.forEach((l) => l.coords.forEach((c) => foo.coords.add(c)));
-    });
+    
     delete maze[next.key];
   } while ((next = findFoldable()));
+
+  const findDeletable = () => Object.values(maze).find(p => p !== start && p !== finish && p.links.length === 1);
+  let deletable = null;
+  while (deletable = findDeletable()) {
+    delete maze[deletable.key];
+    Object.values(maze).forEach(p => {
+      const idx = p.links.findIndex(l => l.target.key === deletable.key);
+      if (idx >= 0) p.links.splice(idx, 1);
+    });
+  }
 
   // https://mermaid.live/
   // console.log("flowchart TD");
@@ -219,12 +233,6 @@ function part2(data) {
 
   function print(results) {
     const coords = new Set(results);
-    const maxx = [...coords]
-      .map((c) => parseInt(c.split(";")[0]))
-      .reduce((a, b) => Math.max(a, b), 0);
-    const maxy = [...coords]
-      .map((c) => parseInt(c.split(";")[1]))
-      .reduce((a, b) => Math.max(a, b), 0);
     
     for (let y = -1; y <= maxy + 1; y++) {
       let line = y === -1 ? "     " :  "";
@@ -239,6 +247,11 @@ function part2(data) {
     }
     console.log();
   }
+
+  // Object.values(maze).forEach(p => p.links.forEach(l => {
+  //   console.log("From", p.key, "to", l.target.key);
+  //   print([...l.coords])
+  // }));
 
   function isOpposite(a, b) {
     if (a.key === "east") return b.key === "west";
@@ -262,9 +275,10 @@ function part2(data) {
     while (edges.length > 0) {
       i++;
       let newEdges = [];
-      const cheapestCost = Math.min(...edges.map((e) => e.cost));
+      const cheapestCost = edges.reduce((a, b) => Math.min(a, b.cost), Infinity);
+      const seenExtras = [];
 
-      // console.log("\n" + i);
+      // console.log(i, " (nr of edges:", edges.length, ")");
 
       for (const edge of edges) {
         // console.log(
@@ -288,15 +302,15 @@ function part2(data) {
           // console.log(edges.map((e) => `${e.target.key} cost ${e.cost}`));
           // [...edge.visitedLinks].forEach(v => console.log(`${v.target.key} (${v.weight})`, [...v.coords].toSorted().join(" - ")));
           optimalCost = edge.cost;
-          console.log(edge.cost);
-          print([...edge.visitedLinks].map((v) => [...v.coords]).flat());
+          // console.log(edge.cost);
+          // print([...edge.visitedLinks].map((v) => [...v.coords]).flat());
           edge.visitedLinks.forEach((v) =>
             v.coords.forEach((c) => bestRoutes.add(c))
           );
         }
 
         if (seen.has(edge.key)) continue;
-        seen.add(edge.key);
+        seenExtras.push(edge.key);
 
         // Continue in current direction
         const linkThatIsStraightOn = edge.target.links.find(
@@ -304,7 +318,7 @@ function part2(data) {
         );
         if (linkThatIsStraightOn) {
           newEdges.push({
-            key: edge.key + "--" + edgeKey(linkThatIsStraightOn.target, edge.dir),
+            key: edgeKey(linkThatIsStraightOn.target, edge.dir),
             target: linkThatIsStraightOn.target,
             cost: edge.cost + linkThatIsStraightOn.weight,
             dir: edge.dir,
@@ -322,7 +336,7 @@ function part2(data) {
           )
           .forEach((link) => {
             newEdges.push({
-              key: edge.key + "--" + edgeKey(link.target, link.dir),
+              key: edgeKey(link.target, link.dir),
               target: link.target,
               cost: edge.cost + link.weight + 1000,
               dir: link.dir,
@@ -330,6 +344,8 @@ function part2(data) {
             });
           });
       }
+
+      seenExtras.forEach(k => seen.add(k));
       edges = newEdges;
     }
 
@@ -457,23 +473,23 @@ describe(`day${day}`, async () => {
   //   expect(result).toBe(95476);
   // });
 
-  // it("should solve part 2 (example, simplified 001)", () => {
-  //   const result = part2(parseInput(exampleSimple1));
-  //   console.log(`Day ${day}, part 2 (example, simplified 001):`, result);
-  //   expect(result).toBe(6);
-  // });
+  it("should solve part 2 (example, simplified 001)", () => {
+    const result = part2(parseInput(exampleSimple1));
+    console.log(`Day ${day}, part 2 (example, simplified 001):`, result);
+    expect(result).toBe(6);
+  });
 
-  // it("should solve part 2 (example, simplified 002)", () => {
-  //   const result = part2(parseInput(exampleSimple2));
-  //   console.log(`Day ${day}, part 2 (example, simplified 002):`, result);
-  //   expect(result).toBe(14);
-  // });
+  it("should solve part 2 (example, simplified 002)", () => {
+    const result = part2(parseInput(exampleSimple2));
+    console.log(`Day ${day}, part 2 (example, simplified 002):`, result);
+    expect(result).toBe(14);
+  });
 
-  // it("should solve part 2 (example, simplified 003)", () => {
-  //   const result = part2(parseInput(exampleSimple3));
-  //   console.log(`Day ${day}, part 2 (example, simplified 003):`, result);
-  //   expect(result).toBe(14);
-  // });
+  it("should solve part 2 (example, simplified 003)", () => {
+    const result = part2(parseInput(exampleSimple3));
+    console.log(`Day ${day}, part 2 (example, simplified 003):`, result);
+    expect(result).toBe(14);
+  });
 
   it("should solve part 2 (example 1)", () => {
     const result = part2(parseInput(example1));
@@ -481,15 +497,15 @@ describe(`day${day}`, async () => {
     expect(result).toBe(45);
   });
 
-  // it("should solve part 2 (example 2)", () => {
-  //   const result = part2(parseInput(example2));
-  //   console.log(`Day ${day}, part 2 (example 2):`, result);
-  //   expect(result).toBe(64);
-  // });
+  it("should solve part 2 (example 2)", () => {
+    const result = part2(parseInput(example2));
+    console.log(`Day ${day}, part 2 (example 2):`, result);
+    expect(result).toBe(64);
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(511);
+  });
 });
