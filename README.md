@@ -39,7 +39,7 @@ Here's what I learned (or noticed) each day.
 16. Persistence is a virtue and a curse, sometimes.
 17. TODO
 18. TODO
-19. TODO
+19. Past experience can be king.
 20. Shower thoughts can be useful!
 21. TODO
 22. TODO
