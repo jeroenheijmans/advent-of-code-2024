@@ -2,8 +2,7 @@ import { describe, it, expect } from "bun:test";
 
 const day = "19";
 
-function part1({patterns, designs}) {
-
+function part1({ patterns, designs }) {
   const possibles = new Set([""]);
   const impossibles = new Set();
 
@@ -24,18 +23,37 @@ function part1({patterns, designs}) {
     return false;
   }
 
-  return designs.filter(d => isPossible(d)).length;
+  return designs.filter((d) => isPossible(d)).length;
 }
 
-function part2(data) {
-  return data.length;
+function part2({ patterns, designs }) {  
+  const nrOfSolutionsPerDesign = { "": 1 };
+
+  function nrOfOptionsFor(design) {
+    if (nrOfSolutionsPerDesign.hasOwnProperty(design)) {
+      return nrOfSolutionsPerDesign[design];
+    }
+
+    let result = 0;
+
+    for (const pattern of patterns) {
+      if (design.startsWith(pattern)) {
+        const rest = design.substring(pattern.length);
+        const extraOptions = nrOfOptionsFor(rest);
+        nrOfSolutionsPerDesign[rest] = extraOptions;
+        result += extraOptions;
+      }
+    }
+
+    return result;
+  }
+
+  return designs.reduce((acc, cur) => acc + nrOfOptionsFor(cur), 0);
 }
 
 function parseInput(input) {
-  const [patterns, designs] = input
-    .trim()
-    .split(/\r?\n\r?\n/g);
-  
+  const [patterns, designs] = input.trim().split(/\r?\n\r?\n/g);
+
   return {
     patterns: patterns.split(", "),
     designs: designs.split(/\r?\n/g),
@@ -70,15 +88,15 @@ bbrgwb
     expect(result).toBe(302);
   });
 
-  // it("should solve part 2 (example 1)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example 1):`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example 1)", () => {
+    const result = part2(parseInput(example1));
+    console.log(`Day ${day}, part 2 (example 1):`, result);
+    expect(result).toBe(16);
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(771745460576799);
+  });
 });
