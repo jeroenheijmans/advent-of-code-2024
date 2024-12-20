@@ -23,19 +23,14 @@ function part1(points, minimumSavedPicoSeconds = 100) {
 
   // Add cheat routes
   points.forEach((point) => {
-    point.cheats = points.filter(
-      (p) =>
-        (p.y === point.y &&
-          p.x - point.x === +2 &&
-          !map[`${p.x - 1};${p.y}`]) ||
-        (p.y === point.y &&
-          p.x - point.x === -2 &&
-          !map[`${p.x + 1};${p.y}`]) ||
-        (p.x === point.x &&
-          p.y - point.y === +2 &&
-          !map[`${p.x};${p.y - 1}`]) ||
-        (p.x === point.x && p.y - point.y === -2 && !map[`${p.x};${p.y + 1}`])
-    );
+    point.cheats = [
+      `${point.x + 2};${point.y}`,
+      `${point.x - 2};${point.y}`,
+      `${point.x};${point.y + 2}`,
+      `${point.x};${point.y - 2}`,
+    ]
+      .map((key) => map[key])
+      .filter((p) => !!p && p.score - point.score > 2);
   });
 
   return points
