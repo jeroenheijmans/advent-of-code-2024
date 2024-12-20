@@ -12,31 +12,36 @@ function part1(points, minimumSavedPicoSeconds = 100) {
   let current = start;
   start.score = 0;
   while (current !== finish) {
-    const target = points.find(
-      (p) => dist(p, current) === 1 && p !== current.previous
-    );
+    const target = [
+      `${current.x + 1};${current.y}`,
+      `${current.x - 1};${current.y}`,
+      `${current.x};${current.y + 1}`,
+      `${current.x};${current.y - 1}`,
+    ]
+      .map((key) => map[key])
+      .find((p) => !!p && p !== current.previous);
     current.next = target;
     target.previous = current;
     target.score = current.score + 1;
     current = target;
   }
 
-  // Add cheat routes
+  let result = 0;
+
   points.forEach((point) => {
-    point.cheats = [
+    result += [
       `${point.x + 2};${point.y}`,
       `${point.x - 2};${point.y}`,
       `${point.x};${point.y + 2}`,
       `${point.x};${point.y - 2}`,
     ]
       .map((key) => map[key])
-      .filter((p) => !!p && p.score - point.score > 2);
+      .filter(
+        (p) => !!p && p.score - point.score > minimumSavedPicoSeconds
+      ).length;
   });
 
-  return points
-    .map((p) => p.cheats.map((c) => c.score - p.score))
-    .flat()
-    .filter((score) => score > minimumSavedPicoSeconds).length;
+  return result;
 }
 
 function part2(points, minimumSavedPicoSeconds = 100) {
@@ -49,9 +54,14 @@ function part2(points, minimumSavedPicoSeconds = 100) {
   let current = start;
   start.score = 0;
   while (current !== finish) {
-    const target = points.find(
-      (p) => dist(p, current) === 1 && p !== current.previous
-    );
+    const target = [
+      `${current.x + 1};${current.y}`,
+      `${current.x - 1};${current.y}`,
+      `${current.x};${current.y + 1}`,
+      `${current.x};${current.y - 1}`,
+    ]
+      .map((key) => map[key])
+      .find((p) => !!p && p !== current.previous);
     current.next = target;
     target.previous = current;
     target.score = current.score + 1;
@@ -61,14 +71,12 @@ function part2(points, minimumSavedPicoSeconds = 100) {
   let result = 0;
 
   points.forEach((point) => {
-    point.cheats = [];
     for (let dy = -20; dy <= 20; dy++) {
       for (let dx = -20; dx <= 20; dx++) {
-        if (Math.abs(dy) + Math.abs(dx) > 20) continue;
-        const target = map[`${point.x + dx};${point.y + dy}`];
-        if (!target) continue;
-        if (target === point) continue;
         const cost = Math.abs(dy) + Math.abs(dx);
+        if (cost > 20) continue;
+        const target = map[`${point.x + dx};${point.y + dy}`];
+        if (!target || target === point) continue;
         if (target.score - point.score - cost >= minimumSavedPicoSeconds) {
           result++;
         }
@@ -120,17 +128,17 @@ describe(`day${day}`, async () => {
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example)", () => {
-  //   const result = part1(parseInput(example1), 10);
-  //   console.log(`Day ${day}, part 1 (example):`, result);
-  //   expect(result).toBe(10);
-  // });
+  it("should solve part 1 (example)", () => {
+    const result = part1(parseInput(example1), 10);
+    console.log(`Day ${day}, part 1 (example):`, result);
+    expect(result).toBe(10);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(1332);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(1332);
+  });
 
   it("should solve part 2 (example)", () => {
     const result = part2(parseInput(example1), 50);
@@ -141,6 +149,6 @@ describe(`day${day}`, async () => {
   it("should solve part 2", () => {
     const result = part2(parseInput(input));
     console.log(`Day ${day}, part 2:`, result);
-    expect(result).toBe(0);
+    expect(result).toBe(987695);
   });
 });
