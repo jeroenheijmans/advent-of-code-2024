@@ -58,6 +58,10 @@ function part2(data, max = 70, count = 1024) {
     }
   }
 
+  if (part1(data, max, lower) < 0) {
+    lower = upper;
+  }
+
   return `${data[lower][0]},${data[lower][1]}`;
 }
 
