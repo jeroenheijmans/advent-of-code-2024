@@ -2,18 +2,18 @@ import { describe, it, expect } from "bun:test";
 
 const day = "19";
 
-function part1({ patterns, designs }) {
+function isPossible(patterns, design) {
   const possibles = new Set([""]);
   const impossibles = new Set();
 
-  function isPossible(design) {
+  function isPossibleCheck(design) {
     if (possibles.has(design)) return true;
     if (impossibles.has(design)) return false;
 
     for (const pattern of patterns) {
       if (design.startsWith(pattern)) {
         const rest = design.substring(pattern.length);
-        if (isPossible(rest)) {
+        if (isPossibleCheck(rest)) {
           possibles.add(design);
           return true;
         }
@@ -23,10 +23,14 @@ function part1({ patterns, designs }) {
     return false;
   }
 
-  return designs.filter((d) => isPossible(d)).length;
+  return isPossibleCheck(design);
 }
 
-function part2({ patterns, designs }) {  
+function part1({ patterns, designs }) {
+  return designs.filter((d) => isPossible(patterns, d)).length;
+}
+
+function part2({ patterns, designs }) {
   const nrOfSolutionsPerDesign = { "": 1 };
 
   function nrOfOptionsFor(design) {
@@ -48,7 +52,8 @@ function part2({ patterns, designs }) {
     return result;
   }
 
-  return designs.reduce((acc, cur) => acc + nrOfOptionsFor(cur), 0);
+  return designs
+    .reduce((acc, cur) => acc + nrOfOptionsFor(cur), 0);
 }
 
 function parseInput(input) {
