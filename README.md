@@ -40,7 +40,7 @@ Here's what I learned (or noticed) each day.
 17. TODO
 18. TODO
 19. TODO
-20. TODO
+20. Shower thoughts can be useful!
 21. TODO
 22. TODO
 23. TODO
