@@ -38,7 +38,7 @@ Here's what I learned (or noticed) each day.
 15. Always check input and output carefully.
 16. Persistence is a virtue and a curse, sometimes.
 17. TODO
-18. TODO
+18. Reusable code can be useful even in Advent of Code.
 19. Past experience can be king.
 20. Shower thoughts can be useful!
 21. TODO
