@@ -10,15 +10,15 @@ const dirs = [
 ];
 
 function part1(data, max = 70, count = 1024) {
-  const walls = new Set(data.slice(0, count).map(p => `${p[0]};${p[1]}`));
+  const walls = new Set(data.slice(0, count).map((p) => `${p[0]};${p[1]}`));
   const target = `${max};${max}`;
-  
+
   let result = 0;
-  let edges = [[0,0]];
+  let edges = [[0, 0]];
   const visited = new Set();
   while (edges.length > 0) {
     const newEdges = [];
-    
+
     for (const edge of edges) {
       const key = `${edge[0]};${edge[1]}`;
       if (visited.has(key)) continue;
@@ -33,18 +33,32 @@ function part1(data, max = 70, count = 1024) {
         if (x > max || y > max) continue;
         const newKey = `${x};${y}`;
         if (walls.has(newKey)) continue;
-        newEdges.push([x,y]);
+        newEdges.push([x, y]);
       }
     }
     result++;
     edges = newEdges;
   }
 
-  throw "No solution found!";
+  return -1;
 }
 
-function part2(data) {
-  return data.length;
+function part2(data, max = 70, count = 1024) {
+  let lower = count;
+  let upper = data.length;
+
+  while (upper - lower > 1) {
+    const delta = upper - lower;
+    const middle = Math.round(delta / 2 + lower);
+
+    if (part1(data, max, middle) > 0) {
+      lower = middle;
+    } else {
+      upper = middle;
+    }
+  }
+
+  return `${data[lower][0]},${data[lower][1]}`;
 }
 
 function parseInput(input) {
@@ -52,7 +66,7 @@ function parseInput(input) {
     .trim()
     .split(/\r?\n/g)
     .filter((x) => !!x)
-    .map(line => line.split(",").map(i => parseInt(i)));
+    .map((line) => line.split(",").map((i) => parseInt(i)));
 }
 
 describe(`day${day}`, async () => {
@@ -95,18 +109,18 @@ describe(`day${day}`, async () => {
   it("should solve part 1", () => {
     const result = part1(parseInput(input));
     console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(0);
+    expect(result).toBe(312);
   });
 
-  // it("should solve part 2 (example 1)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example 1):`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example 1)", () => {
+    const result = part2(parseInput(example1), 6, 12);
+    console.log(`Day ${day}, part 2 (example 1):`, result);
+    expect(result).toBe("6,1");
+  });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe("28,26");
+  });
 });
