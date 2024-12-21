@@ -21,8 +21,20 @@ function charChanges(str) {
   return changes;
 }
 
+const order = ["^", ">", "v", "<"];
+
 const pathSorter = (left, right) => {
-  return charChanges(left) - charChanges(right);
+  const one = charChanges(left);
+  const two = charChanges(right);
+  if (one !== two) return one - two;
+
+  for (let i = 0; i < left.length; i++) {
+    const a = order.indexOf(left[i]);
+    const b = order.indexOf(right[i]);
+    if (a !== b) return b - a;
+  }
+
+  return 0;
 }
 
 const createPad = (input) => {
@@ -96,7 +108,10 @@ function part1(data) {
 
     for (const targetChar of code) {
       // console.log("  numpad target:", targetChar);
-      if (targetChar === currentNumpadPosition.char) continue;
+      if (targetChar === currentNumpadPosition.char) {
+        count++;
+        continue;
+      }
 
       const possiblePaths1 = currentNumpadPosition.paths[targetChar];
       const path1 = possiblePaths1[0]; // BIG GUESS! Just pick any path, should be fine?
