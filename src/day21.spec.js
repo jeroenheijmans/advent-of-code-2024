@@ -12,6 +12,19 @@ function getMoveFor(from, to) {
   throw "Unexpected move wanted";
 }
 
+function charChanges(str) {
+  if (str.length < 2) return;
+  let changes = 0;
+  for (let i = 1; i < str.length; i++) {
+    if (str[i] !== str[i-1]) changes++;
+  }
+  return changes;
+}
+
+const pathSorter = (left, right) => {
+  return charChanges(left) - charChanges(right);
+}
+
 const createPad = (input) => {
   const pad = input
     .split(/\r?\n/g)
@@ -57,7 +70,7 @@ const createPad = (input) => {
       if (pSource === pTarget) return;
       pSource.paths[pTarget.char] = findPathsTo(pTarget, pSource, [
         pSource.char,
-      ]);
+      ]).toSorted(pathSorter);
     });
   });
 
@@ -90,14 +103,20 @@ function part1(data) {
 
       for (const dir1Target of path1) {
         // console.log("    dirpad1 target:", dir1Target);
-        if (dir1Target === currentDir1Position.char) continue;
+        if (dir1Target === currentDir1Position.char) {
+          count++;
+          continue;
+        }
 
         const possiblePaths2 = currentDir1Position.paths[dir1Target];
         const path2 = possiblePaths2[0]; // BIG GUESS! Just pick any path, should be fine?
 
         for (const dir2Target of path2) {
           // console.log("      dirpad2 target:", dir2Target);
-          if (dir2Target === currentDir2Position.char) continue;
+          if (dir2Target === currentDir2Position.char) {
+            count++;
+            continue;
+          }
           
           const possiblePaths3 = currentDir2Position.paths[dir2Target];
           const path3 = possiblePaths3[0]; // BIG GUESS! Just pick any path, should be fine?
@@ -145,11 +164,12 @@ describe(`day${day}`, async () => {
     expect(result).toBe(126384);
   });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBeLessThan(136294);
+    expect(result).toBe(0);
+  });
 
   // it("should solve part 2 (example 1)", () => {
   //   const result = part2(parseInput(example1));
