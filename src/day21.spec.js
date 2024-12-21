@@ -103,7 +103,7 @@ function part1(data) {
   let result = 0;
   
   for (const code of data) {
-    console.log("Tackling code", code);
+    // console.log("Tackling code", code);
     let count = 0;
 
     for (const targetChar of code) {
@@ -147,7 +147,7 @@ function part1(data) {
     }
 
     const codeValue = parseInt(code.substring(0, 3));
-    console.log("  ", count, "x", codeValue, "=", count * codeValue);
+    // console.log("  ", count, "x", codeValue, "=", count * codeValue);
     result += count * codeValue;
   }
 
@@ -183,7 +183,7 @@ describe(`day${day}`, async () => {
     const result = part1(parseInput(input));
     console.log(`Day ${day}, part 1:`, result);
     expect(result).toBeLessThan(136294);
-    expect(result).toBe(0);
+    expect(result).toBe(125742);
   });
 
   // it("should solve part 2 (example 1)", () => {
