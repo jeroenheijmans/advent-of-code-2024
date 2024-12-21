@@ -4,38 +4,41 @@ const day = "21";
 
 const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 
-function getMoveFor(from, to) {
+const getMoveFor = (from, to) => {
   if (to.x - from.x === -1) return "<";
   if (to.x - from.x === +1) return ">";
   if (to.y - from.y === -1) return "^";
   if (to.y - from.y === +1) return "v";
   throw "Unexpected move wanted";
-}
+};
 
-function charChanges(str) {
+const charChanges = (str) => {
   if (str.length < 2) return;
   let changes = 0;
   for (let i = 1; i < str.length; i++) {
-    if (str[i] !== str[i-1]) changes++;
+    if (str[i] !== str[i - 1]) changes++;
   }
   return changes;
-}
+};
 
-const order = ["^", ">", "v", "<"];
+const order = ["^", ">", "v", "<"]; // preference order
 
 const pathSorter = (left, right) => {
+  // Part 1: prefer sequences that repeat chars often
   const one = charChanges(left);
   const two = charChanges(right);
   if (one !== two) return one - two;
 
+  // Part 2: prefer certain characters in order
   for (let i = 0; i < left.length; i++) {
     const a = order.indexOf(left[i]);
     const b = order.indexOf(right[i]);
     if (a !== b) return b - a;
   }
 
+  // Otherwise: considered equal
   return 0;
-}
+};
 
 const createPad = (input) => {
   const pad = input
@@ -46,7 +49,7 @@ const createPad = (input) => {
         x,
         y,
         links: [],
-        paths: {},
+        bestPath: {},
       }))
     )
     .flat()
@@ -80,75 +83,61 @@ const createPad = (input) => {
   pad.forEach((pSource) => {
     pad.forEach((pTarget) => {
       if (pSource === pTarget) return;
-      pSource.paths[pTarget.char] = findPathsTo(pTarget, pSource, [
+      pSource.bestPath[pTarget.char] = findPathsTo(pTarget, pSource, [
         pSource.char,
-      ]).toSorted(pathSorter);
+      ]).toSorted(pathSorter)[0];
     });
   });
-
-  // console.log(numpad[0]);
 
   return pad;
 };
 
 function part1(data) {
   const numpad = createPad("789\n456\n123\n 0A");
-  const dirpad1 = createPad(" ^A\n<v>");
-  const dirpad2 = createPad(" ^A\n<v>");
+  const dirpad = createPad(" ^A\n<v>");
 
-  let currentDir1Position = dirpad1.find(p => p.char === "A");
-  let currentDir2Position = dirpad2.find(p => p.char === "A");
-  let currentNumpadPosition = numpad.find(p => p.char === "A");
+  let currentDir1Position = dirpad.find((p) => p.char === "A");
+  let currentDir2Position = dirpad.find((p) => p.char === "A");
+  let currentNumpadPosition = numpad.find((p) => p.char === "A");
 
   let result = 0;
-  
+
   for (const code of data) {
-    // console.log("Tackling code", code);
     let count = 0;
 
     for (const targetChar of code) {
-      // console.log("  numpad target:", targetChar);
       if (targetChar === currentNumpadPosition.char) {
         count++;
         continue;
       }
 
-      const possiblePaths1 = currentNumpadPosition.paths[targetChar];
-      const path1 = possiblePaths1[0]; // BIG GUESS! Just pick any path, should be fine?
+      const path1 = currentNumpadPosition.bestPath[targetChar];
 
       for (const dir1Target of path1) {
-        // console.log("    dirpad1 target:", dir1Target);
         if (dir1Target === currentDir1Position.char) {
           count++;
           continue;
         }
 
-        const possiblePaths2 = currentDir1Position.paths[dir1Target];
-        const path2 = possiblePaths2[0]; // BIG GUESS! Just pick any path, should be fine?
+        const path2 = currentDir1Position.bestPath[dir1Target];
 
         for (const dir2Target of path2) {
-          // console.log("      dirpad2 target:", dir2Target);
           if (dir2Target === currentDir2Position.char) {
             count++;
             continue;
           }
-          
-          const possiblePaths3 = currentDir2Position.paths[dir2Target];
-          const path3 = possiblePaths3[0]; // BIG GUESS! Just pick any path, should be fine?
 
-          count += path3.length;
-          currentDir2Position = dirpad2.find(p => p.char === dir2Target);
+          count += currentDir2Position.bestPath[dir2Target].length;
+          currentDir2Position = dirpad.find((p) => p.char === dir2Target);
         }
 
-        currentDir1Position = dirpad1.find(p => p.char === dir1Target);
+        currentDir1Position = dirpad.find((p) => p.char === dir1Target);
       }
 
-      currentNumpadPosition = numpad.find(p => p.char === targetChar);
+      currentNumpadPosition = numpad.find((p) => p.char === targetChar);
     }
 
-    const codeValue = parseInt(code.substring(0, 3));
-    // console.log("  ", count, "x", codeValue, "=", count * codeValue);
-    result += count * codeValue;
+    result += count * parseInt(code.substring(0, 3));
   }
 
   return result;
@@ -159,7 +148,10 @@ function part2(data) {
 }
 
 function parseInput(input) {
-  return input.trim().split(/\r?\n/g).filter(line => !line.startsWith("// "));
+  return input
+    .trim()
+    .split(/\r?\n/g)
+    .filter((line) => !line.startsWith("// "));
 }
 
 describe(`day${day}`, async () => {
