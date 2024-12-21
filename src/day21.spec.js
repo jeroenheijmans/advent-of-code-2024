@@ -71,11 +71,53 @@ function part1(data) {
   const dirpad1 = createPad(" ^A\n<v>");
   const dirpad2 = createPad(" ^A\n<v>");
 
-  const numPosition = "A";
-  const dirpad1Position = "A";
-  const dirpad2Position = "A";
+  let currentDir1Position = dirpad1.find(p => p.char === "A");
+  let currentDir2Position = dirpad2.find(p => p.char === "A");
+  let currentNumpadPosition = numpad.find(p => p.char === "A");
 
-  return 0;
+  let result = 0;
+  
+  for (const code of data) {
+    console.log("Tackling code", code);
+    let count = 0;
+
+    for (const targetChar of code) {
+      // console.log("  numpad target:", targetChar);
+      if (targetChar === currentNumpadPosition.char) continue;
+
+      const possiblePaths1 = currentNumpadPosition.paths[targetChar];
+      const path1 = possiblePaths1[0]; // BIG GUESS! Just pick any path, should be fine?
+
+      for (const dir1Target of path1) {
+        // console.log("    dirpad1 target:", dir1Target);
+        if (dir1Target === currentDir1Position.char) continue;
+
+        const possiblePaths2 = currentDir1Position.paths[dir1Target];
+        const path2 = possiblePaths2[0]; // BIG GUESS! Just pick any path, should be fine?
+
+        for (const dir2Target of path2) {
+          // console.log("      dirpad2 target:", dir2Target);
+          if (dir2Target === currentDir2Position.char) continue;
+          
+          const possiblePaths3 = currentDir2Position.paths[dir2Target];
+          const path3 = possiblePaths3[0]; // BIG GUESS! Just pick any path, should be fine?
+
+          count += path3.length;
+          currentDir2Position = dirpad2.find(p => p.char === dir2Target);
+        }
+
+        currentDir1Position = dirpad1.find(p => p.char === dir1Target);
+      }
+
+      currentNumpadPosition = numpad.find(p => p.char === targetChar);
+    }
+
+    const codeValue = parseInt(code.substring(0, 3));
+    console.log("  ", count, "x", codeValue, "=", count * codeValue);
+    result += count * codeValue;
+  }
+
+  return result;
 }
 
 function part2(data) {
@@ -83,7 +125,7 @@ function part2(data) {
 }
 
 function parseInput(input) {
-  return input.trim().split(/\r?\n/g);
+  return input.trim().split(/\r?\n/g).filter(line => !line.startsWith("// "));
 }
 
 describe(`day${day}`, async () => {
