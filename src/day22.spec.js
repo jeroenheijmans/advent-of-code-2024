@@ -27,7 +27,7 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  return 0;
 }
 
 function parseInput(input) {
@@ -86,11 +86,11 @@ describe(`day${day}`, async () => {
     expect(result).toBe(20332089158);
   });
 
-  // it("should solve part 2 (example 1)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example 1):`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2 (example 1)", () => {
+    const result = part2(parseInput(example1));
+    console.log(`Day ${day}, part 2 (example 1):`, result);
+    expect(result).toBe(23);
+  });
 
   // it("should solve part 2", () => {
   //   const result = part2(parseInput(input));
