@@ -3,14 +3,14 @@ import { describe, it, expect, test } from "bun:test";
 const day = "22";
 
 function generateNextSecret(secret) {
-  secret = (secret * 64) ^ secret; // *64 + mix
-  secret = secret % 16777216; // prune
+  secret = (secret * 64n) ^ secret; // *64 + mix
+  secret = secret % 16777216n; // prune
 
-  secret = Math.floor(secret / 32) ^ secret; // /32 + mix
-  secret = secret % 16777216; // prune
+  secret = (secret / 32n) ^ secret; // /32 + mix
+  secret = secret % 16777216n; // prune
 
-  secret = (secret * 2048) ^ secret; // *2048 + mix
-  secret = secret % 16777216; // prune
+  secret = (secret * 2048n) ^ secret; // *2048 + mix
+  secret = secret % 16777216n; // prune
 
   return secret;
 }
@@ -23,8 +23,7 @@ function generateNthSecret(secret, iterations = 2000) {
 }
 
 function part1(data) {
-  console.log(data);
-  return data.length;
+  return Number(data.reduce((acc, next) => acc + generateNthSecret(next, 2000), 0n));
 }
 
 function part2(data) {
@@ -36,7 +35,7 @@ function parseInput(input) {
     .trim()
     .split(/\r?\n/g)
     .filter((x) => !!x)
-    .map((x) => parseInt(x));
+    .map((x) => BigInt(x));
 }
 
 describe(`day${day}`, async () => {
@@ -50,42 +49,42 @@ describe(`day${day}`, async () => {
   const input = await Bun.file(`src/day${day}.txt`).text();
 
   test.each([
-    [123, 15887950],
-    [15887950, 16495136],
-    [16495136, 527345],
-    // [527345, 704524],
-    // [704524, 1553684],
-    // [1553684, 12683156],
-    // [12683156, 11100544],
-    // [11100544, 12249484],
-    // [12249484, 7753432],
-    // [7753432, 5908254],
+    [123n, 15887950n],
+    [15887950n, 16495136n],
+    [16495136n, 527345n],
+    [527345n, 704524n],
+    [704524n, 1553684n],
+    [1553684n, 12683156n],
+    [12683156n, 11100544n],
+    [11100544n, 12249484n],
+    [12249484n, 7753432n],
+    [7753432n, 5908254n],
   ])("should turn %p into %p", (input, expected) => {
     const result = generateNextSecret(input);
     expect(result).toBe(expected);
   });
 
-  // test.each([
-  //     [1, 8685429],
-  //     [10, 4700978],
-  //     [100, 15273692],
-  //     [2024, 8667524],
-  // ])("should turn %p into %p after 2000 iterations", (input, expected) => {
-  //   const result = generateNthSecret(input, 2000);
-  //   expect(result).toBe(expected);
-  // });
+  test.each([
+      [1n, 8685429n],
+      [10n, 4700978n],
+      [100n, 15273692n],
+      [2024n, 8667524n],
+  ])("should turn %p into %p after 2000 iterations", (input, expected) => {
+    const result = generateNthSecret(input, 2000);
+    expect(result).toBe(expected);
+  });
 
-  // it("should solve part 1 (example 1)", () => {
-  //   const result = part1(parseInput(example1));
-  //   console.log(`Day ${day}, part 1 (example 1):`, result);
-  //   expect(result).toBe(37327623);
-  // });
+  it("should solve part 1 (example 1)", () => {
+    const result = part1(parseInput(example1));
+    console.log(`Day ${day}, part 1 (example 1):`, result);
+    expect(result).toBe(37327623);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(20332089158);
+  });
 
   // it("should solve part 2 (example 1)", () => {
   //   const result = part2(parseInput(example1));
