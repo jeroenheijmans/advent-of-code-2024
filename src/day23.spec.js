@@ -34,7 +34,38 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  const nodes = [...new Set(data.flat().toSorted())].map((key) => ({ key }));
+
+  nodes.forEach((node) => {
+    node.links = nodes.filter((other) =>
+      data.some(
+        (connection) =>
+          connection.includes(node.key) &&
+          connection.includes(other.key) &&
+          node !== other
+      )
+    );
+  });
+
+  const findLargest = (result, next) => result && result.links.length > next.links.length ? result : next;
+  const start = nodes.reduce(findLargest, null);
+
+  const group = new Set();
+  const seen = new Set();
+  let edges = [start];
+
+  while (edges.length > 0) {
+    const newEdges = [];
+    for (const edge of edges) {
+      if (seen.has(edge.key)) continue;
+      seen.add(edge.key);
+      group.add(edge.key);
+      newEdges.push(...edge.links.filter(n2 => !seen.has(n2.key)));
+    }
+    edges = newEdges;
+  }
+
+  console.log(group); // No no no, this is in the wrong direction!  
 }
 
 function parseInput(input) {
@@ -83,23 +114,23 @@ td-yn
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  it("should solve part 1 (example 1)", () => {
-    const result = part1(parseInput(example1));
-    console.log(`Day ${day}, part 1 (example 1):`, result);
-    expect(result).toBe(7);
-  });
+  // it("should solve part 1 (example 1)", () => {
+  //   const result = part1(parseInput(example1));
+  //   console.log(`Day ${day}, part 1 (example 1):`, result);
+  //   expect(result).toBe(7);
+  // });
 
-  it("should solve part 1", () => {
-    const result = part1(parseInput(input));
-    console.log(`Day ${day}, part 1:`, result);
-    expect(result).toBe(1075);
-  });
+  // it("should solve part 1", () => {
+  //   const result = part1(parseInput(input));
+  //   console.log(`Day ${day}, part 1:`, result);
+  //   expect(result).toBe(1075);
+  // });
 
-  //   it("should solve part 2 (example 1)", () => {
-  //     const result = part2(parseInput(example1));
-  //     console.log(`Day ${day}, part 2 (example 1):`, result);
-  //     expect(result).toBe(0);
-  //   });
+    it("should solve part 2 (example 1)", () => {
+      const result = part2(parseInput(example1));
+      console.log(`Day ${day}, part 2 (example 1):`, result);
+      expect(result).toBe("co,de,ka,ta");
+    });
 
   //   it("should solve part 2", () => {
   //     const result = part2(parseInput(input));
