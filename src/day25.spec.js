@@ -101,9 +101,9 @@ describe(`day${day}`, async () => {
     expect(result).toBe(3057);
   });
 
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe("⭐️");
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe("⭐️");
+  });
 });
