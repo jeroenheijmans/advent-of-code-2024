@@ -93,11 +93,9 @@ const createPad = (input) => {
 };
 
 function solve(data, numberOfDirPads) {
-  const dirPadDepth = numberOfDirPads - 1;
   const numpad = createPad("789\n456\n123\n 0A");
   const dirpad = createPad(" ^A\n<v>");
 
-  let currentNumpadPosition = numpad.find((p) => p.char === "A");
   let currentDirPositions = {};
   let memoizedResults = {};
   for (let i = 0; i <= 25; i++) {
@@ -105,24 +103,10 @@ function solve(data, numberOfDirPads) {
     memoizedResults[i] = {};
   }
 
-  let result = 0;
-
   function countRecursive(path, depth) {
+    if (!path) return 0;
+
     let count = 0;
-
-    if (depth === 0) {
-      for (const dirTarget of path) {
-        if (dirTarget === currentDirPositions[depth].char) {
-          count++;
-          continue;
-        }
-
-        count += currentDirPositions[depth].bestPath[dirTarget].length;
-        currentDirPositions[depth] = dirpad.find((p) => p.char === dirTarget);
-      }
-
-      return count;
-    }
 
     for (const dirTarget of path) {
       if (dirTarget === currentDirPositions[depth].char) {
@@ -133,7 +117,10 @@ function solve(data, numberOfDirPads) {
       const deeperPath = currentDirPositions[depth].bestPath[dirTarget];
 
       if (!memoizedResults[depth][deeperPath]) {
-        memoizedResults[depth][deeperPath] = countRecursive(deeperPath, depth - 1);
+        memoizedResults[depth][deeperPath] =
+          depth === 0
+            ? currentDirPositions[depth].bestPath[dirTarget].length
+            : countRecursive(deeperPath, depth - 1);
       }
 
       count += memoizedResults[depth][deeperPath];
@@ -143,24 +130,27 @@ function solve(data, numberOfDirPads) {
     return count;
   }
 
-  for (const code of data) {
-    let count = 0;
+  const dirPadDepth = numberOfDirPads - 1;
 
-    for (const targetChar of code) {
-      if (targetChar === currentNumpadPosition.char) {
-        count++;
-        continue;
+  return data
+    .map((code) => {
+      let currentNumpadPosition = numpad.find((p) => p.char === "A");
+      let count = 0;
+
+      for (const targetChar of code) {
+        if (targetChar === currentNumpadPosition.char) {
+          count++;
+          continue;
+        }
+
+        const path1 = currentNumpadPosition.bestPath[targetChar];
+        count += countRecursive(path1, dirPadDepth);
+        currentNumpadPosition = numpad.find((p) => p.char === targetChar);
       }
 
-      const path1 = currentNumpadPosition.bestPath[targetChar];
-      count += countRecursive(path1, dirPadDepth);
-      currentNumpadPosition = numpad.find((p) => p.char === targetChar);
-    }
-
-    result += count * parseInt(code.substring(0, 3));
-  }
-
-  return result;
+      return count * parseInt(code.substring(0, 3));
+    })
+    .reduce((a, b) => a + b, 0);
 }
 
 function part1(data) {
