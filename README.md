@@ -42,7 +42,7 @@ Here's what I learned (or noticed) each day.
 19. Past experience can be king.
 20. Shower thoughts can be useful!
 21. Gut feelings are not the same as getting lucky.
-22. TODO
+22. Optimizing code is not for everyone.
 23. Slow can be just fine sometimes.
 24. TODO
 25. TODO
