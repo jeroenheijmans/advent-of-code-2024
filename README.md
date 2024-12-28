@@ -41,7 +41,7 @@ Here's what I learned (or noticed) each day.
 18. Reusable code can be useful even in Advent of Code.
 19. Past experience can be king.
 20. Shower thoughts can be useful!
-21. TODO
+21. Gut feelings are not the same as getting lucky.
 22. TODO
 23. Slow can be just fine sometimes.
 24. TODO
