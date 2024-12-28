@@ -39,7 +39,7 @@ function part2(data, iterations = 2000) {
       priceBySequenceKey: {},
     };
 
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i <= iterations; i++) {
       entries[idx].secrets[i + 1] = generateNextSecret(entries[idx].secrets[i]);
       entries[idx].prices[i + 1] = Number(entries[idx].secrets[i + 1] % 10n);
       if (i > 0) {
@@ -52,13 +52,14 @@ function part2(data, iterations = 2000) {
 
   const sequences = new Set();
   for (let idx = 0; idx < data.length; idx++) {
-    for (let i = 0; i < iterations - 4; i++) {
-      const sequence = entries[idx].changes.slice(i, i + 4);
+    for (let i = 0; i <= iterations - 4; i++) {
+      const entry = entries[idx];
+      const sequence = entry.changes.slice(i, i + 4);
       const key = sequence.join(",");
       sequences.add(key);
-      entries[idx].sequences[i] = key;
-      if (!entries[idx].priceBySequenceKey.hasOwnProperty(key)) {
-        entries[idx].priceBySequenceKey[key] = entries[idx].prices[i + 4];
+      entry.sequences[i] = key;
+      if (!entry.priceBySequenceKey.hasOwnProperty(key)) {
+        entry.priceBySequenceKey[key] = entry.prices[i + 4];
       }
     }
   }
@@ -69,15 +70,15 @@ function part2(data, iterations = 2000) {
   const list = Object.values(entries);
 
   for (const sequence of sequences) {
-    if (++i % 10000 === 0) console.log(i++, "best so far:", result);
+    // if (++i % 10000 === 0) console.log(i++, "best so far:", result);
     let earnings = 0;
 
     for (const entry of list) {
       const price = entry.priceBySequenceKey[sequence];
-      earnings += price || 0;
+      if (price) earnings += price;
     }
 
-    if (earnings >= result) console.log("Better price!", sequence, "gives", earnings);
+    // if (earnings >= result) console.log("Better price!", sequence, "gives", earnings);
 
     result = Math.max(result, earnings);
   }
@@ -159,6 +160,7 @@ describe(`day${day}`, async () => {
     console.log(`Day ${day}, part 2:`, result);
     expect(result).toBeGreaterThan(1778);
     expect(result).toBeGreaterThan(2185);
-    expect(result).toBe(0);
+    expect(result).toBeGreaterThan(2186); // guessed an off-by-one, but was incorrect
+    expect(result).toBe(2191);
   });
 });
