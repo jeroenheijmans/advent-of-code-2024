@@ -30,57 +30,41 @@ function part1(data) {
 
 function part2(data, iterations = 2000) {
   const entries = {};
-  data.forEach((seed, idx) => {
-    entries[idx] = {
-      secrets: [seed],
-      prices: [Number(seed % 10n)],
+  const earningsByKey = {};
+  data.forEach((secret, idx) => {
+    const entry = {
+      prices: [Number(secret % 10n)],
       changes: [],
-      sequences: [],
       priceBySequenceKey: {},
     };
 
+    entries[idx] = entry;
+
     for (let i = 0; i <= iterations; i++) {
-      entries[idx].secrets[i + 1] = generateNextSecret(entries[idx].secrets[i]);
-      entries[idx].prices[i + 1] = Number(entries[idx].secrets[i + 1] % 10n);
+      secret = generateNextSecret(secret);
+      entry.prices[i + 1] = Number(secret % 10n);
       if (i > 0) {
-        entries[idx].changes.push(
-          entries[idx].prices[i] - entries[idx].prices[i - 1]
+        entry.changes.push(
+          entry.prices[i] - entry.prices[i - 1]
         );
       }
     }
   });
 
-  const sequences = new Set();
-  for (let idx = 0; idx < data.length; idx++) {
+  for (const idx in entries) {
     for (let i = 0; i <= iterations - 4; i++) {
       const entry = entries[idx];
       const sequence = entry.changes.slice(i, i + 4);
       const key = sequence.join(",");
-      sequences.add(key);
-      entry.sequences[i] = key;
       if (!entry.priceBySequenceKey.hasOwnProperty(key)) {
-        entry.priceBySequenceKey[key] = entry.prices[i + 4];
+        const price = entry.prices[i + 4];
+        entry.priceBySequenceKey[key] = price;
+        earningsByKey[key] = (earningsByKey[key] || 0) + price;
       }
     }
   }
 
-  let result = 0;
-  let i = 0;
-
-  const list = Object.values(entries);
-
-  for (const sequence of sequences) {
-    let earnings = 0;
-
-    for (const entry of list) {
-      const price = entry.priceBySequenceKey[sequence];
-      if (price) earnings += price;
-    }
-
-    result = Math.max(result, earnings);
-  }
-
-  return result;
+  return Object.values(earningsByKey).reduce((acc, next) => Math.max(acc, next), 0);
 }
 
 function parseInput(input) {
