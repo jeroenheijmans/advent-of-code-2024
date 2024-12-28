@@ -136,7 +136,6 @@ function part1(data, dirPadDepth = 1) {
       }
 
       count += memoizedResults[depth][deeperPath];
-
       currentDirPositions[depth] = dirpad.find((p) => p.char === dirTarget);
     }
 
@@ -153,9 +152,7 @@ function part1(data, dirPadDepth = 1) {
       }
 
       const path1 = currentNumpadPosition.bestPath[targetChar];
-
       count += countRecursive(path1, dirPadDepth);
-
       currentNumpadPosition = numpad.find((p) => p.char === targetChar);
     }
 
@@ -166,7 +163,7 @@ function part1(data, dirPadDepth = 1) {
 }
 
 function part2(data) {
-  return part1(data, 24);
+  return part1(data, 22);
 }
 
 function parseInput(input) {
@@ -203,6 +200,7 @@ describe(`day${day}`, async () => {
   it("should solve part 2", () => {
     const result = part2(parseInput(input));
     console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBeGreaterThan(28526563431078);
     expect(result).toBeGreaterThan(71407398760630);
     expect(result).toBeLessThan(178746295538656);
     expect(result).toBe(0);
