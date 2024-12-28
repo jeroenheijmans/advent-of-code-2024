@@ -92,7 +92,8 @@ const createPad = (input) => {
   return pad;
 };
 
-function part1(data, dirPadDepth = 1) {
+function solve(data, numberOfDirPads) {
+  const dirPadDepth = numberOfDirPads - 1;
   const numpad = createPad("789\n456\n123\n 0A");
   const dirpad = createPad(" ^A\n<v>");
 
@@ -162,8 +163,12 @@ function part1(data, dirPadDepth = 1) {
   return result;
 }
 
+function part1(data) {
+  return solve(data, 2);
+}
+
 function part2(data) {
-  return part1(data, 22);
+  return solve(data, 25);
 }
 
 function parseInput(input) {
@@ -202,6 +207,7 @@ describe(`day${day}`, async () => {
     console.log(`Day ${day}, part 2:`, result);
     expect(result).toBeGreaterThan(28526563431078);
     expect(result).toBeGreaterThan(71407398760630);
+    expect(result).toBeLessThan(178746295538655);
     expect(result).toBeLessThan(178746295538656);
     expect(result).toBe(0);
   });
