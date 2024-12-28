@@ -92,15 +92,56 @@ const createPad = (input) => {
   return pad;
 };
 
-function part1(data) {
+function part1(data, dirPadDepth = 1) {
   const numpad = createPad("789\n456\n123\n 0A");
   const dirpad = createPad(" ^A\n<v>");
 
-  let currentDir1Position = dirpad.find((p) => p.char === "A");
-  let currentDir2Position = dirpad.find((p) => p.char === "A");
   let currentNumpadPosition = numpad.find((p) => p.char === "A");
+  let currentDirPositions = {};
+  let memoizedResults = {};
+  for (let i = 0; i <= 25; i++) {
+    currentDirPositions[i] = dirpad.find((p) => p.char === "A");
+    memoizedResults[i] = {};
+  }
 
   let result = 0;
+
+  function countRecursive(path, depth) {
+    let count = 0;
+
+    if (depth === 0) {
+      for (const dirTarget of path) {
+        if (dirTarget === currentDirPositions[depth].char) {
+          count++;
+          continue;
+        }
+
+        count += currentDirPositions[depth].bestPath[dirTarget].length;
+        currentDirPositions[depth] = dirpad.find((p) => p.char === dirTarget);
+      }
+
+      return count;
+    }
+
+    for (const dirTarget of path) {
+      if (dirTarget === currentDirPositions[depth].char) {
+        count++;
+        continue;
+      }
+
+      const deeperPath = currentDirPositions[depth].bestPath[dirTarget];
+
+      if (!memoizedResults[depth][deeperPath]) {
+        memoizedResults[depth][deeperPath] = countRecursive(deeperPath, depth - 1);
+      }
+
+      count += memoizedResults[depth][deeperPath];
+
+      currentDirPositions[depth] = dirpad.find((p) => p.char === dirTarget);
+    }
+
+    return count;
+  }
 
   for (const code of data) {
     let count = 0;
@@ -113,26 +154,7 @@ function part1(data) {
 
       const path1 = currentNumpadPosition.bestPath[targetChar];
 
-      for (const dir1Target of path1) {
-        if (dir1Target === currentDir1Position.char) {
-          count++;
-          continue;
-        }
-
-        const path2 = currentDir1Position.bestPath[dir1Target];
-
-        for (const dir2Target of path2) {
-          if (dir2Target === currentDir2Position.char) {
-            count++;
-            continue;
-          }
-
-          count += currentDir2Position.bestPath[dir2Target].length;
-          currentDir2Position = dirpad.find((p) => p.char === dir2Target);
-        }
-
-        currentDir1Position = dirpad.find((p) => p.char === dir1Target);
-      }
+      count += countRecursive(path1, dirPadDepth);
 
       currentNumpadPosition = numpad.find((p) => p.char === targetChar);
     }
@@ -144,7 +166,7 @@ function part1(data) {
 }
 
 function part2(data) {
-  return data.length;
+  return part1(data, 23);
 }
 
 function parseInput(input) {
@@ -178,15 +200,9 @@ describe(`day${day}`, async () => {
     expect(result).toBe(125742);
   });
 
-  // it("should solve part 2 (example 1)", () => {
-  //   const result = part2(parseInput(example1));
-  //   console.log(`Day ${day}, part 2 (example 1):`, result);
-  //   expect(result).toBe(0);
-  // });
-
-  // it("should solve part 2", () => {
-  //   const result = part2(parseInput(input));
-  //   console.log(`Day ${day}, part 2:`, result);
-  //   expect(result).toBe(0);
-  // });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe(0);
+  });
 });
