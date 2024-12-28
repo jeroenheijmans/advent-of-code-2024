@@ -36,6 +36,7 @@ function part2(data, iterations = 2000) {
       prices: [Number(seed % 10n)],
       changes: [],
       sequences: [],
+      priceBySequenceKey: {},
     };
 
     for (let i = 0; i < iterations; i++) {
@@ -47,9 +48,8 @@ function part2(data, iterations = 2000) {
         );
       }
     }
-    // console.log(idx, seed, "results in", entries[idx].secrets.at(-1))
   });
-  
+
   const sequences = new Set();
   for (let idx = 0; idx < data.length; idx++) {
     for (let i = 0; i < iterations - 4; i++) {
@@ -57,29 +57,26 @@ function part2(data, iterations = 2000) {
       const key = sequence.join(",");
       sequences.add(key);
       entries[idx].sequences[i] = key;
+      if (!entries[idx].priceBySequenceKey.hasOwnProperty(key)) {
+        entries[idx].priceBySequenceKey[key] = entries[idx].prices[idx + 4];
+      }
     }
   }
 
   let result = 0;
+  let i = 0;
+
+  const list = Object.values(entries);
 
   for (const sequence of sequences) {
-    if (sequence !== "-2,1,-1,3") continue;
+    if (++i % 10000 === 0) console.log(i++, "best so far:", result);
     let earnings = 0;
 
-    Object.values(entries).forEach((entry, n) => {
-      // console.log(entry.secrets[0]);
-      const idx = entry.sequences.indexOf(sequence);
-      if (idx >= 0) {
-        const price = entry.prices[idx + 4];
-        // console.log("Selling", n, "(seed", entry.secrets[0], ")", "at price", price);
-        earnings += price;
-        return;
-      }
-    });
+    for (const entry of list) {
+      const price = entry.priceBySequenceKey[sequence];
+      earnings += price || 0;
+    }
 
-    // if (earnings > 22) console.log(sequence, "=>", earnings);
-    // console.log(sequence, "=>", earnings);
-    
     result = Math.max(result, earnings);
   }
 
@@ -159,6 +156,7 @@ describe(`day${day}`, async () => {
     const result = part2(parseInput(input));
     console.log(`Day ${day}, part 2:`, result);
     expect(result).toBeGreaterThan(1778);
+    expect(result).toBeGreaterThan(2185);
     expect(result).toBe(0);
   });
 });
