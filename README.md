@@ -43,7 +43,7 @@ Here's what I learned (or noticed) each day.
 20. Shower thoughts can be useful!
 21. TODO
 22. TODO
-23. TODO
+23. Slow can be just fine sometimes.
 24. TODO
 25. TODO
 
