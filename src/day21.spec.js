@@ -21,7 +21,7 @@ const charChanges = (str) => {
   return changes;
 };
 
-const order = ["^", ">", "v", "<"]; // preference order
+const order = [">", "^", "v", "<"]; // preference order
 
 const pathSorter = (left, right) => {
   // Part 1: prefer sequences that repeat chars often
@@ -199,6 +199,6 @@ describe(`day${day}`, async () => {
     expect(result).toBeGreaterThan(71407398760630);
     expect(result).toBeLessThan(178746295538655);
     expect(result).toBeLessThan(178746295538656);
-    expect(result).toBe(0);
+    expect(result).toBe(157055032722640);
   });
 });
