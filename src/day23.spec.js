@@ -33,39 +33,56 @@ function part1(data) {
   return groups.size;
 }
 
+function combinations(array, n) {
+  if (n === 0) return [[]];
+  if (array.length === 0) return [];
+  const [first, ...rest] = array;
+
+  const withFirst = combinations(rest, n - 1).map(combo => [first, ...combo]);
+  const withoutFirst = combinations(rest, n);
+
+  return [...withFirst, ...withoutFirst];
+}
+
 function part2(data) {
   const nodes = [...new Set(data.flat().toSorted())].map((key) => ({ key }));
 
   nodes.forEach((node) => {
-    node.links = nodes.filter((other) =>
-      data.some(
-        (connection) =>
-          connection.includes(node.key) &&
-          connection.includes(other.key) &&
-          node !== other
+    node.links = nodes
+      .filter((other) =>
+        data.some(
+          (connection) =>
+            node !== other &&
+            connection.includes(node.key) &&
+            connection.includes(other.key)
+        )
       )
-    );
+      .map((n) => n.key);
   });
 
-  const findLargest = (result, next) => result && result.links.length > next.links.length ? result : next;
-  const start = nodes.reduce(findLargest, null);
+  const map = Object.fromEntries(nodes.map((n) => [n.key, n]));
 
-  const group = new Set();
+  const max = Math.max(...nodes.map(n => n.links.length));
   const seen = new Set();
-  let edges = [start];
 
-  while (edges.length > 0) {
-    const newEdges = [];
-    for (const edge of edges) {
-      if (seen.has(edge.key)) continue;
-      seen.add(edge.key);
-      group.add(edge.key);
-      newEdges.push(...edge.links.filter(n2 => !seen.has(n2.key)));
+  for (let i = max; i > 0; i--) {
+    // console.log(i);
+    for (const node of nodes) {
+      const options = combinations(node.links, i);
+      for (const combi of options) {
+        const option = [node.key, ...combi].toSorted();
+        const result = option.join(",");
+        if (seen.has(result)) continue;
+        seen.add(result);
+        if (option.every(key => 
+          option.every(otherKey => otherKey === key || map[otherKey].links.includes(key))
+        )) {
+          return result;
+        }
+      }
     }
-    edges = newEdges;
   }
 
-  console.log(group); // No no no, this is in the wrong direction!  
 }
 
 function parseInput(input) {
@@ -114,27 +131,27 @@ td-yn
 
   const input = await Bun.file(`src/day${day}.txt`).text();
 
-  // it("should solve part 1 (example 1)", () => {
-  //   const result = part1(parseInput(example1));
-  //   console.log(`Day ${day}, part 1 (example 1):`, result);
-  //   expect(result).toBe(7);
-  // });
+  it("should solve part 1 (example 1)", () => {
+    const result = part1(parseInput(example1));
+    console.log(`Day ${day}, part 1 (example 1):`, result);
+    expect(result).toBe(7);
+  });
 
-  // it("should solve part 1", () => {
-  //   const result = part1(parseInput(input));
-  //   console.log(`Day ${day}, part 1:`, result);
-  //   expect(result).toBe(1075);
-  // });
+  it("should solve part 1", () => {
+    const result = part1(parseInput(input));
+    console.log(`Day ${day}, part 1:`, result);
+    expect(result).toBe(1075);
+  });
 
-    it("should solve part 2 (example 1)", () => {
-      const result = part2(parseInput(example1));
-      console.log(`Day ${day}, part 2 (example 1):`, result);
-      expect(result).toBe("co,de,ka,ta");
-    });
+  it("should solve part 2 (example 1)", () => {
+    const result = part2(parseInput(example1));
+    console.log(`Day ${day}, part 2 (example 1):`, result);
+    expect(result).toBe("co,de,ka,ta");
+  });
 
-  //   it("should solve part 2", () => {
-  //     const result = part2(parseInput(input));
-  //     console.log(`Day ${day}, part 2:`, result);
-  //     expect(result).toBe(0);
-  //   });
+  it("should solve part 2", () => {
+    const result = part2(parseInput(input));
+    console.log(`Day ${day}, part 2:`, result);
+    expect(result).toBe("az,cg,ei,hz,jc,km,kt,mv,sv,sx,wc,wq,xy");
+  });
 });
