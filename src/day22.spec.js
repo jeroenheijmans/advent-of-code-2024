@@ -58,7 +58,7 @@ function part2(data, iterations = 2000) {
       sequences.add(key);
       entries[idx].sequences[i] = key;
       if (!entries[idx].priceBySequenceKey.hasOwnProperty(key)) {
-        entries[idx].priceBySequenceKey[key] = entries[idx].prices[idx + 4];
+        entries[idx].priceBySequenceKey[key] = entries[idx].prices[i + 4];
       }
     }
   }
@@ -76,6 +76,8 @@ function part2(data, iterations = 2000) {
       const price = entry.priceBySequenceKey[sequence];
       earnings += price || 0;
     }
+
+    if (earnings >= result) console.log("Better price!", sequence, "gives", earnings);
 
     result = Math.max(result, earnings);
   }
